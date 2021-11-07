@@ -7,20 +7,34 @@ Sign Up
 
 {% block styles %}
 {{super()}}
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link rel="stylesheet" href="{{url_for('.static', filename='signin.css')}}">
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container wrapper fadeInDown ">
+  <div id="formContent">
+    <!-- Tabs Titles -->
 
-  <form class="form-signin" method="POST" action="/signup">
-    <h2 class="form-signin-heading">Sign Up</h2>
+    <!-- Icon -->
+    <div class="fadeIn first">
+      <img src="/static/icons8-user.png" id="icon" alt="User Icon" />
+    </div>
+
+    <form method="POST" action="/signup">
+      <h2 class="form-signin-heading">Sign Up</h2>
       {{ form.hidden_tag() }}
-      {{ wtf.form_field(form.email) }}
-      {{ wtf.form_field(form.username) }}
-      {{ wtf.form_field(form.password) }}
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign Up</button>
-  </form>
+      {{ form.email(class_="fadeIn second", placeholder="email") }}
+      {{ form.username(class_="fadeIn third",placeholder="username") }}
+      {{ form.password(class_="fadeIn fourth",placeholder="password") }}
+      
+     
+    <button class="btn btn-lg btn-primary btn-block fadeIn fourth btnx btn-1" type="submit">Sign Up</button>
+    </form>
+ 
+  </div>
+</div>
 
-</div> <!-- /container -->
 {% endblock %}
