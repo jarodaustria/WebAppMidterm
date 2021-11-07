@@ -1,3 +1,4 @@
+<body style="background-color:#D1E8E4;">
 {% extends "bootstrap/base.html" %}
 
 {% block title %}
@@ -8,30 +9,29 @@ SulyApp
 {{super()}}
 <link rel="stylesheet" href="{{url_for('.static', filename='starter-template.css')}}">
 {% endblock %}
-
 {% block content %}
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-inverse navbar-fixed-top" style="background-color:#61857E;">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
+            <span class="sr-only" >Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">SulyApp</a>
+          <a class="navbar-brand" href="#" style="color:#D1E8E4;">SulyApp</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="{{ url_for('login') }}">Login</a></li>
-            <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+            <li class="active"><a href="#" style="color:D1E8E4;">Home</a></li> 
+            <li><a href="{{ url_for('login') }}" style="color:D1E8E4;"> Login</a></li>
+            <li><a href="{{ url_for('signup') }}" style="color:D1E8E4;">Sign Up</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container" style="background-color:#D1E8E4;">
 
       <div class="starter-template">
         <h1>We Present to you</h1>
@@ -47,5 +47,34 @@ SulyApp
         </p>
       </div>
 
+    <button type="button" 
+      style="
+          background-color: #61857E;
+          margin-left:auto;
+          margin-right:auto;
+          display:block;
+          margin-top:3%;
+          margin-bottom:0%
+          border: none;
+          color: black;
+          padding: 25px;
+          text-decoration: none;
+          font-size: 25px;
+          border-radius: 15px;
+          cursor: pointer;"
+        onclick="myFunction()">
+          Get Started!
+    </button> 
+    
+    <script>
+    function myFunction() {
+      location.replace("{{ url_for('login') }}")
+    }
+    </script>
+    </button> 
+
     </div><!-- /.container -->
+
+
 {% endblock %}
+</body>
