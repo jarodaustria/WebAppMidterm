@@ -10,7 +10,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:/School\Devops\MidtermProject\WebApp\database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 Bootstrap(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -81,4 +81,5 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    db.create_all()
+    app.run(host="0.0.0.0", port=8080,debug=True)
