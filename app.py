@@ -83,7 +83,6 @@ def signup():
 
     return render_template('signup.html', form=form)
 
-
 @app.route('/dashboard')
 @login_required
 def dashboard():
