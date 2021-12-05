@@ -1,5 +1,5 @@
 from enum import unique
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
@@ -34,7 +34,7 @@ class LoginForm(FlaskForm):
     username = StringField('username', validators=[
                            InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[
-                             InputRequired(), Length(min=8, max=80)])
+                             InputRequired(), Length(min=3, max=80)])
     remember = BooleanField('remember me')
 
 
@@ -44,7 +44,7 @@ class RegisterForm(FlaskForm):
     username = StringField('username', validators=[
                            InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[
-                             InputRequired(), Length(min=8, max=80)])
+                             InputRequired(), Length(min=3, max=80)])
 
 
 @app.route('/')
@@ -88,12 +88,62 @@ def signup():
 def dashboard():
     return render_template('dashboard.html', name=current_user.username)
 
+@app.route('/admin')
+def admin():
+    users = User.query.all()
+
+    context = {
+        'users': users
+    }
+
+    return render_template('admin.html', context=context)
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+@app.route('/delete_user/<int:id>')
+def delete_user(id):
+    user_to_delete = User.query.get_or_404(id)
+
+    try:
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        return redirect(url_for('admin'))
+    except:
+        return '<h1> Failed to delete user. </h1>'
+
+@app.route('/update_user/<int:id>', methods=['GET','POST'])
+def update_user(id):
+    
+    user_to_update = User.query.get_or_404(id)
+    form = RegisterForm(obj=user_to_update)
+
+    print("updating user...")
+
+    if request.method == "POST":
+        user_to_update.email = request.form['email']
+        user_to_update.username = request.form['username']
+        hash_password = generate_password_hash(
+            request.form['password'], method='sha256')
+
+        user_to_update.password = hash_password
+        print("hindi pa committed")
+        
+        try:
+            db.session.commit()
+            print("committed na")
+            return redirect(url_for('admin'))
+        except:
+            return '<h1> Failed to update user. </h1>'
+    else:
+        return render_template('update_user.html', form=form, user_to_update=user_to_update)
+
+
+
+    
 
 
 if __name__ == '__main__':
