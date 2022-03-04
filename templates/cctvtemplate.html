@@ -1,32 +1,13 @@
 {% extends "bootstrap/base.html" %}
 
 {% block title %}
-SulyApp
+Dashboard
 {% endblock %}
+
 {% block styles %}
 {{super()}}
 <link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}">
-
-<style>
-    table {
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-      width: 100%;
-    }
-    
-    td, th {
-      border: 1px solid #dddddd;
-      text-align: left;
-      padding: 8px;
-    }
-    
-    tr:nth-child(even) {
-      background-color: #dddddd;
-    }
-    </style>
 {% endblock %}
-
-{% block content %}
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
@@ -40,7 +21,7 @@ SulyApp
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+          <li><a href="#">Dashboard</a></li>
           <li><a href="{{ url_for('admin') }}">Admin</a></li>
           <li><a href="#">Profile</a></li>
           <li><a href="{{ url_for('logout') }}">Log Out</a></li>
@@ -51,31 +32,5 @@ SulyApp
       </div>
     </div>
   </nav>
-
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Email</th>
-        <!-- <th>Password</th> -->
-        <th></th>
-        <th></th>
-    </tr>
-    {% for u in context.users %}
-    <tr>
-        <td>{{ u.id }}</td>
-        <td>{{ u.email }}</td>
-        <td>{{ u.username }}</td>
-        <td>
-            <a href="{{ url_for('update_user', id=u.id) }}">update</a>
-        </td>
-        <td>
-            <a href="{{ url_for('delete_user', id=u.id) }}" >delete</a>
-        </td>
-        
-    </tr>
-    {% endfor %}
-
-
-</table>
-{% endblock %}
+  {% block content %}
+  {% endblock %}
