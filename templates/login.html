@@ -1,4 +1,5 @@
-<body style="background-color:#D1E8E4;">
+<body style="background: rgb(0,3,6);
+background: linear-gradient(90deg, rgba(0,3,6,1) 0%, rgba(17,39,62,1) 35%, rgba(215,32,40,1) 100%);">
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
@@ -12,9 +13,16 @@ Login
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link rel="stylesheet" href="{{url_for('.static', filename='signin.css')}}">
+<link rel="stylesheet" href="{{url_for('.static', filename='starter-template.css')}}">
 {% endblock %}
 
 {% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="logo"></div>
+    <div class="clearfix"></div>
+  </div>
+  <div class="col-md-6">
 <div class="container wrapper fadeInDown ">
   <div id="formContent">
     <!-- Tabs Titles -->
@@ -29,6 +37,8 @@ Login
     </form>
   
   </div>
+</div>
+</div>
 </div>
 
 {% endblock %}
