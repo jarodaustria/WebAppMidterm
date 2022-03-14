@@ -1,16 +1,18 @@
-<body style="background-color:#D1E8E4;">
-{% extends "bootstrap/base.html" %}
+<body style="background: rgb(0,3,6);
+background: linear-gradient(90deg, rgba(0,3,6,1) 0%, rgba(17,39,62,1) 35%, rgba(215,32,40,1) 100%);">
+  {% extends "bootstrap/base.html" %}
 
-{% block title %}
-SulyApp
-{% endblock %}
+  {% block title %}
+  SulyApp
+  {% endblock %}
 
-{% block styles %}
-{{super()}}
-<link rel="stylesheet" href="{{url_for('.static', filename='starter-template.css')}}">
-{% endblock %}
-{% block content %}
-    <nav class="navbar navbar-inverse navbar-fixed-top" style="background-color:#61857E;">
+  {% block styles %}
+  {{super()}}
+  <link rel="stylesheet" href="{{url_for('.static', filename='starter-template.css')}}">
+  <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
+  {% endblock %}
+  {% block content %}
+  <!-- <nav class="navbar navbar-inverse navbar-fixed-top" style="background-color:#61857E;">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -26,8 +28,8 @@ SulyApp
             <li class="active"><a href="#" style="color:D1E8E4;">Home</a></li> 
             <li><a href="{{ url_for('login') }}" style="color:D1E8E4;"> Login</a></li>
             <li><a href="{{ url_for('signup') }}" style="color:D1E8E4;">Sign Up</a></li>
-          </ul>
-        </div><!--/.nav-collapse -->
+          </ul> -->
+  <!-- </div>
       </div>
     </nav>
 
@@ -38,9 +40,9 @@ SulyApp
         <figure class="figure">
           <img src="{{url_for('.static', filename='sulyapp_logo.png')}}" 
             width="1000" height="220"
-            class="figure-img img-fluid rounded" alt="...">
-          <!-- <figcaption class="figure-caption">A caption for the above image.</figcaption> -->
-        </figure>
+            class="figure-img img-fluid rounded" alt="..."> -->
+  <!-- <figcaption class="figure-caption">A caption for the above image.</figcaption> -->
+  <!-- </figure>
         <p class="lead">
           Crime Detection and Alert System using Computer Vision <br> 
           Start making your smart CCTV system now. <br> <br>
@@ -72,10 +74,36 @@ SulyApp
       location.replace("{{ url_for('login') }}")
     }
     </script>
-    </button> 
+    </button>  -->
 
-    </div><!-- /.container -->
+  <!-- </div> -->
 
+  <div class="row">
+    <div class="column">
+      <div class="container">
+        <div class="logo"></div>
+        <div class="clearfix"></div>
+      </div>
+    </div>
 
-{% endblock %}
+    <div class="column">
+      <div class="login_form">
+        <div class="v1_23"></div>
+        <span class="v1_26">LOGIN</span>
+        <span class="v1_38">Create Account</span>
+        <span class="v1_25">Username</span>
+        <div class="v1_27"></div>
+        <div class="v1_29"></div>
+        <span class="v1_34">Type your username</span>
+        <span class="v1_35">Type your password</span><span class="v1_36">Forgot your password?</span>
+        <span class="v1_28">Password</span>
+        <div class="v1_37"></div>
+        <span class="v1_40">LOGIN</span>
+        <div class="v1_30"></div>
+        <div class="v1_31">
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
 </body>
