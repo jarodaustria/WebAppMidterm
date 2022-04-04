@@ -83,10 +83,12 @@ def signup():
 
     return render_template('signup.html', form=form)
 
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html', name=current_user.username)
+
 
 @app.route('/admin')
 def admin():
@@ -98,11 +100,19 @@ def admin():
 
     return render_template('admin.html', context=context)
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/cctv')
+@login_required
+def cctv():
+    return render_template('cctv1.html', name=current_user.username)
+
 
 @app.route('/delete_user/<int:id>')
 def delete_user(id):
@@ -115,9 +125,10 @@ def delete_user(id):
     except:
         return '<h1> Failed to delete user. </h1>'
 
-@app.route('/update_user/<int:id>', methods=['GET','POST'])
+
+@app.route('/update_user/<int:id>', methods=['GET', 'POST'])
 def update_user(id):
-    
+
     user_to_update = User.query.get_or_404(id)
     form = RegisterForm(obj=user_to_update)
 
@@ -131,7 +142,7 @@ def update_user(id):
 
         user_to_update.password = hash_password
         print("hindi pa committed")
-        
+
         try:
             db.session.commit()
             print("committed na")
@@ -142,10 +153,6 @@ def update_user(id):
         return render_template('update_user.html', form=form, user_to_update=user_to_update)
 
 
-
-    
-
-
 if __name__ == '__main__':
     db.create_all()
-    app.run(host="0.0.0.0", port=8080,debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True)
