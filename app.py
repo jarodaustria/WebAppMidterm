@@ -114,6 +114,12 @@ def cctv():
     return render_template('cctv1.html', name=current_user.username)
 
 
+@app.route('/notification')
+@login_required
+def notification():
+    return render_template('notification.html', name=current_user.username)
+
+
 @app.route('/delete_user/<int:id>')
 def delete_user(id):
     user_to_delete = User.query.get_or_404(id)

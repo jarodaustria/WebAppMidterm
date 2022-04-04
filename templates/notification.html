@@ -1,0 +1,528 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}">
+<link rel="stylesheet" href="{{url_for('.static', filename='notification.css')}}">
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
+  integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
+{% endblock %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"
+  integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+        aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Sulyapp</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('admin') }}">Admin</a></li>
+        <li><a href="#">Profile</a></li>
+        <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+      </ul>
+      <form class="navbar-form navbar-right">
+        <input type="text" class="form-control" placeholder="Search...">
+      </form>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar">
+      <ul class="nav nav-sidebar">
+        <li><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+        <li><a href="#">Reports</a></li>
+        <li><a href="#">Analytics</a></li>
+        <li><a href="#">Export</a></li>
+        <li class="active"><a href="{{ url_for('notification') }}">Notifications</a></li>
+      </ul>
+      <ul class="nav nav-sidebar">
+        <li><a href="{{ url_for('cctv') }}">CCTV 1</a></li>
+        <li><a href="">CCTV 2</a></li>
+        <li><a href="">CCTV 3</a></li>
+        <li><a href="">CCTV 4</a></li>
+        <li><a href="">CCTV 5</a></li>
+      </ul>
+      <!--<ul class="nav nav-sidebar">
+            <li><a href="">Nav item again</a></li>
+            <li><a href="">One more nav</a></li>
+            <li><a href="">Another nav item</a></li>
+          </ul> -->
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      <h1 class="page-header">Welcome, {{ name }}</h1>
+
+      <!--<div class="row placeholders">
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+          </div> 
+
+          <h2 class="sub-header">Section title</h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Header</th>
+                  <th>Header</th>
+                  <th>Header</th>
+                  <th>Header</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1,001</td>
+                  <td>Lorem</td>
+                  <td>ipsum</td>
+                  <td>dolor</td>
+                  <td>sit</td>
+                </tr>
+                <tr>
+                  <td>1,002</td>
+                  <td>amet</td>
+                  <td>consectetur</td>
+                  <td>adipiscing</td>
+                  <td>elit</td>
+                </tr>
+                <tr>
+                  <td>1,003</td>
+                  <td>Integer</td>
+                  <td>nec</td>
+                  <td>odio</td>
+                  <td>Praesent</td>
+                </tr>
+                <tr>
+                  <td>1,003</td>
+                  <td>libero</td>
+                  <td>Sed</td>
+                  <td>cursus</td>
+                  <td>ante</td>
+                </tr>
+                <tr>
+                  <td>1,004</td>
+                  <td>dapibus</td>
+                  <td>diam</td>
+                  <td>Sed</td>
+                  <td>nisi</td>
+                </tr>
+                <tr>
+                  <td>1,005</td>
+                  <td>Nulla</td>
+                  <td>quis</td>
+                  <td>sem</td>
+                  <td>at</td>
+                </tr>
+                <tr>
+                  <td>1,006</td>
+                  <td>nibh</td>
+                  <td>elementum</td>
+                  <td>imperdiet</td>
+                  <td>Duis</td>
+                </tr>
+                <tr>
+                  <td>1,007</td>
+                  <td>sagittis</td>
+                  <td>ipsum</td>
+                  <td>Praesent</td>
+                  <td>mauris</td>
+                </tr>
+                <tr>
+                  <td>1,008</td>
+                  <td>Fusce</td>
+                  <td>nec</td>
+                  <td>tellus</td>
+                  <td>sed</td>
+                </tr>
+                <tr>
+                  <td>1,009</td>
+                  <td>augue</td>
+                  <td>semper</td>
+                  <td>porta</td>
+                  <td>Mauris</td>
+                </tr>
+                <tr>
+                  <td>1,010</td>
+                  <td>massa</td>
+                  <td>Vestibulum</td>
+                  <td>lacinia</td>
+                  <td>arcu</td>
+                </tr>
+                <tr>
+                  <td>1,011</td>
+                  <td>eget</td>
+                  <td>nulla</td>
+                  <td>Class</td>
+                  <td>aptent</td>
+                </tr>
+                <tr>
+                  <td>1,012</td>
+                  <td>taciti</td>
+                  <td>sociosqu</td>
+                  <td>ad</td>
+                  <td>litora</td>
+                </tr>
+                <tr>
+                  <td>1,013</td>
+                  <td>torquent</td>
+                  <td>per</td>
+                  <td>conubia</td>
+                  <td>nostra</td>
+                </tr>
+                <tr>
+                  <td>1,014</td>
+                  <td>per</td>
+                  <td>inceptos</td>
+                  <td>himenaeos</td>
+                  <td>Curabitur</td>
+                </tr>
+                <tr>
+                  <td>1,015</td>
+                  <td>sodales</td>
+                  <td>ligula</td>
+                  <td>in</td>
+                  <td>libero</td>
+                </tr>
+              </tbody>
+            </table>
+          </div> -->
+
+
+      <div class="container bodyx">
+
+        <div class="col-lg-9 right">
+          <div class="box shadow-sm rounded bg-white mb-3">
+            <div class="box-title border-bottom p-3">
+              <h6 class="m-0">Recent</h6>
+            </div>
+            <div class="box-body p-0">
+              <div class="p-3 d-flex align-items-center bg-light border-bottom osahan-post-header">
+                <div class="dropdown-list-image mr-3">
+                  <img class="rounded-circle" src="https://bootdey.com/img/Content/avatar/avatar3.png" alt="" />
+                </div>
+                <div class="font-weight-bold mr-3">
+                  <div class="text-truncate">DAILY RUNDOWN: WEDNESDAY</div>
+                  <div class="small">Income tax sops on the cards, The bias in VC funding, and other top news for you
+                  </div>
+                </div>
+                <span class="ml-auto mb-auto">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light btn-sm rounded" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
+                    </div>
+                  </div>
+                  <br />
+                  <div class="text-right text-muted pt-1">3d</div>
+                </span>
+              </div>
+              <div class="p-3 d-flex align-items-center osahan-post-header">
+                <div class="dropdown-list-image mr-3">
+                  <img class="rounded-circle" src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" />
+                </div>
+                <div class="font-weight-bold mr-3">
+                  <div class="mb-2">We found a job at askbootstrap Ltd that you may be interested in Vivamus imperdiet
+                    venenatis est...</div>
+                  <button type="button" class="btn btn-outline-success btn-sm" data-toggle="modal"
+                    data-target="#modalCrimeDetected">Take Actions</button>
+                </div>
+                <div class="modal fade right" id="modalCrimeDetected" tabindex="-1" role="dialog"
+                  aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false">
+                  <div class="modal-dialog modal-side modal-bottom-right modal-notify modal-info" role="document">
+                    <!--Content-->
+                    <div class="modal-content">
+                      <!--Header-->
+                      <div class="modal-header">
+                        <p class="heading">Verify Anomalous Activity</p>
+
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true" class="white-text">&times;</span>
+                        </button>
+                      </div>
+
+                      <!--Body-->
+                      <div class="modal-body">
+
+                        <div class="row">
+                          <div class="col-5">
+                            <img
+                              src="https://www.telegraph.co.uk/content/dam/news/2017/11/27/Capture_1_trans_NvBQzQNjv4BqpJliwavx4coWFCaEkEsb3kvxIt-lGGWCWqwLa_RXJU8.PNG?imwidth=480"
+                              class="img-fluid" alt="">
+                          </div>
+
+                          <div class="col-7">
+                            <p><strong>CCTV 1</strong></p>
+                            <p>April 4, 2022 08:22:56 PM <br> Stealing: 98% </p>
+                            <button type="button" class="btn btn-danger btn-md">CRIME</button>
+                            <button type="button" class="btn btn-info btn-md">NOT A CRIME</button>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!--/.Content-->
+                  </div>
+                </div>
+                <span class="ml-auto mb-auto">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light btn-sm rounded" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
+                    </div>
+                  </div>
+                  <br />
+                  <div class="text-right text-muted pt-1">4d</div>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="box shadow-sm rounded bg-white mb-3">
+            <div class="box-title border-bottom p-3">
+              <h6 class="m-0">Earlier</h6>
+            </div>
+            <div class="box-body p-0">
+              <div class="p-3 d-flex align-items-center border-bottom osahan-post-header">
+                <div
+                  class="dropdown-list-image mr-3 d-flex align-items-center bg-danger justify-content-center rounded-circle text-white">
+                  DRM</div>
+                <div class="font-weight-bold mr-3">
+                  <div class="text-truncate">DAILY RUNDOWN: MONDAY</div>
+                  <div class="small">Nunc purus metus, aliquam vitae venenatis sit amet, porta non est.</div>
+                </div>
+                <span class="ml-auto mb-auto">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light btn-sm rounded" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right" style="">
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
+                    </div>
+                  </div>
+                  <br />
+                  <div class="text-right text-muted pt-1">3d</div>
+                </span>
+              </div>
+              <div class="p-3 d-flex align-items-center border-bottom osahan-post-header">
+                <div class="dropdown-list-image mr-3"><img class="rounded-circle"
+                    src="https://bootdey.com/img/Content/avatar/avatar3.png" alt="" /></div>
+                <div class="font-weight-bold mr-3">
+                  <div class="text-truncate">DAILY RUNDOWN: SATURDAY</div>
+                  <div class="small">Pellentesque semper ex diam, at tristique ipsum varius sed. Pellentesque non
+                    metus ullamcorper</div>
+                </div>
+                <span class="ml-auto mb-auto">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light btn-sm rounded" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
+                    </div>
+                  </div>
+                  <br />
+                  <div class="text-right text-muted pt-1">3d</div>
+                </span>
+              </div>
+              <div class="p-3 d-flex align-items-center border-bottom osahan-post-header">
+                <div class="dropdown-list-image mr-3">
+                  <img class="rounded-circle" src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" />
+                </div>
+                <div class="font-weight-bold mr-3">
+                  <div class="mb-2"><span class="font-weight-normal">Congratulate Gurdeep Singh Osahan
+                      (iamgurdeeposahan)</span> for 5 years at Askbootsrap Pvt.</div>
+                  <button type="button" class="btn btn-outline-success btn-sm">Say congrats</button>
+                </div>
+                <span class="ml-auto mb-auto">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light btn-sm rounded" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
+                    </div>
+                  </div>
+                  <br />
+                  <div class="text-right text-muted pt-1">4d</div>
+                </span>
+              </div>
+              <div class="p-3 d-flex align-items-center border-bottom osahan-post-header">
+                <div class="dropdown-list-image mr-3">
+                  <img class="rounded-circle" src="https://bootdey.com/img/Content/avatar/avatar4.png" alt="" />
+                </div>
+                <div class="font-weight-bold mr-3">
+                  <div>
+                    <span class="font-weight-normal">Congratulate Mnadeep singh (iamgurdeeposahan)</span> for 4 years
+                    at Askbootsrap Pvt.
+                    <div class="small text-success"><i class="fa fa-check-circle"></i> You sent Mandeep a message
+                    </div>
+                  </div>
+                </div>
+                <span class="ml-auto mb-auto">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light btn-sm rounded" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
+                    </div>
+                  </div>
+                  <br />
+                  <div class="text-right text-muted pt-1">4d</div>
+                </span>
+              </div>
+              <div class="p-3 d-flex align-items-center border-bottom osahan-post-header">
+                <div
+                  class="dropdown-list-image mr-3 d-flex align-items-center bg-success justify-content-center rounded-circle text-white">
+                  M</div>
+                <div class="font-weight-bold mr-3">
+                  <div class="text-truncate">DAILY RUNDOWN: MONDAY</div>
+                  <div class="small">Nunc purus metus, aliquam vitae venenatis sit amet, porta non est.</div>
+                </div>
+                <span class="ml-auto mb-auto">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light btn-sm rounded" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
+                    </div>
+                  </div>
+                  <br />
+                  <div class="text-right text-muted pt-1">3d</div>
+                </span>
+              </div>
+              <div class="p-3 d-flex align-items-center border-bottom osahan-post-header">
+                <div class="dropdown-list-image mr-3"><img class="rounded-circle"
+                    src="https://bootdey.com/img/Content/avatar/avatar3.png" alt="" /></div>
+                <div class="font-weight-bold mr-3">
+                  <div class="text-truncate">DAILY RUNDOWN: SATURDAY</div>
+                  <div class="small">Pellentesque semper ex diam, at tristique ipsum varius sed. Pellentesque non
+                    metus ullamcorper</div>
+                </div>
+                <span class="ml-auto mb-auto">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light btn-sm rounded" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
+                    </div>
+                  </div>
+                  <br />
+                  <div class="text-right text-muted pt-1">3d</div>
+                </span>
+              </div>
+              <div class="p-3 d-flex align-items-center border-bottom osahan-post-header">
+                <div class="dropdown-list-image mr-3">
+                  <img class="rounded-circle" src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" />
+                </div>
+                <div class="font-weight-bold mr-3">
+                  <div class="mb-2"><span class="font-weight-normal">Congratulate Gurdeep Singh Osahan
+                      (iamgurdeeposahan)</span> for 5 years at Askbootsrap Pvt.</div>
+                  <button type="button" class="btn btn-outline-success btn-sm">Say congrats</button>
+                </div>
+                <span class="ml-auto mb-auto">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light btn-sm rounded" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
+                    </div>
+                  </div>
+                  <br />
+                  <div class="text-right text-muted pt-1">4d</div>
+                </span>
+              </div>
+              <div class="p-3 d-flex align-items-center osahan-post-header">
+                <div class="dropdown-list-image mr-3">
+                  <img class="rounded-circle" src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" />
+                </div>
+                <div class="font-weight-bold mr-3">
+                  <div>
+                    <span class="font-weight-normal">Congratulate Mnadeep singh (iamgurdeeposahan)</span> for 4 years
+                    at Askbootsrap Pvt.
+                    <div class="small text-success"><i class="fa fa-check-circle"></i> You sent Mandeep a message
+                    </div>
+                  </div>
+                </div>
+                <span class="ml-auto mb-auto">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-light btn-sm rounded" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
+                      <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
+                    </div>
+                  </div>
+                  <br />
+                  <div class="text-right text-muted pt-1">4d</div>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
