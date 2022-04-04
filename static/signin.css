@@ -1,12 +1,10 @@
-/* BASIC */
-
 html {
-  background-color: #D1E8E4;
+  background-color: #d1e8e4;
 }
 
 body {
   font-family: "Poppins", sans-serif;
-  height: 100vh;
+  height: 100%;
 }
 
 a {
@@ -26,10 +24,7 @@ h2 {
   color: #cccccc;
 }
 
-
-
 /* STRUCTURE */
-
 .wrapper {
   display: flex;
   align-items: center;
@@ -38,6 +33,7 @@ h2 {
   width: 100%;
   min-height: 100%;
   padding: 20px;
+  padding-top: 250px;
 }
 
 #formContent {
@@ -46,7 +42,9 @@ h2 {
   background: #fff;
   padding: 30px;
   width: 90%;
+  height: 100%;
   max-width: 450px;
+  max-height: 500px;
   position: relative;
   padding: 0px;
   -webkit-box-shadow: 0 30px 60px 0 rgba(0, 0, 0, 0.3);
@@ -63,8 +61,6 @@ h2 {
   border-radius: 0 0 10px 10px;
 }
 
-
-
 /* TABS */
 
 h2.inactive {
@@ -76,14 +72,12 @@ h2.active {
   border-bottom: 2px solid #5fbae9;
 }
 
-
-
 /* FORM TYPOGRAPHY*/
 
-input[type=button],
-input[type=submit],
-input[type=reset] {
-  background-color: #A7D2DD;
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  background-color: #a7d2dd;
   border: none;
   color: white;
   padding: 15px 80px;
@@ -104,15 +98,15 @@ input[type=reset] {
   transition: all 0.3s ease-in-out;
 }
 
-input[type=button]:hover,
-input[type=submit]:hover,
-input[type=reset]:hover {
-  background-color: #B4DBDC;
+input[type="button"]:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover {
+  background-color: #b4dbdc;
 }
 
-input[type=button]:active,
-input[type=submit]:active,
-input[type=reset]:active {
+input[type="button"]:active,
+input[type="submit"]:active,
+input[type="reset"]:active {
   -moz-transform: scale(0.95);
   -webkit-transform: scale(0.95);
   -o-transform: scale(0.95);
@@ -120,9 +114,9 @@ input[type=reset]:active {
   transform: scale(0.95);
 }
 
-input[type=text],
-input[type=password],
-input[type=email] {
+input[type="text"],
+input[type="password"],
+input[type="email"] {
   background-color: #f6f6f6;
   border: none;
   color: #0d0d0d;
@@ -143,18 +137,16 @@ input[type=email] {
   border-radius: 5px 5px 5px 5px;
 }
 
-input[type=text]input[type=password],
-input[type=email]:focus {
+input[type="text"]input[type="password"],
+input[type="email"]:focus {
   background-color: #fff;
   border-bottom: 2px solid #5fbae9;
 }
 
-input[type=text]input[type=password],
-input[type=email]:placeholder {
+input[type="text"]input[type="password"],
+input[type="email"]:placeholder {
   color: #cccccc;
 }
-
-
 
 /* ANIMATIONS */
 
@@ -286,8 +278,6 @@ input[type=email]:placeholder {
   width: 100%;
 }
 
-
-
 /* OTHERS */
 
 *:focus {
@@ -318,7 +308,6 @@ input[type=email]:placeholder {
   flex-direction: column;
 }
 
-
 .chiller_cb {
   position: relative;
   height: 2rem;
@@ -330,35 +319,35 @@ input[type=email]:placeholder {
   display: none;
 }
 
-.chiller_cb input:checked~span {
+.chiller_cb input:checked ~ span {
   background: green;
   border-color: green;
 }
 
-.chiller_cb input:checked~span:before {
+.chiller_cb input:checked ~ span:before {
   width: 1rem;
   height: 0.15rem;
   transition: width 0.1s;
   transition-delay: 0.3s;
 }
 
-.chiller_cb input:checked~span:after {
+.chiller_cb input:checked ~ span:after {
   width: 0.4rem;
   height: 0.15rem;
   transition: width 0.1s;
   transition-delay: 0.2s;
 }
 
-.chiller_cb input:disabled~span {
+.chiller_cb input:disabled ~ span {
   background: #ececec;
   border-color: #dcdcdc;
 }
 
-.chiller_cb input:disabled~label {
+.chiller_cb input:disabled ~ label {
   color: #dcdcdc;
 }
 
-.chiller_cb input:disabled~label:hover {
+.chiller_cb input:disabled ~ label:hover {
   cursor: default;
 }
 
@@ -393,8 +382,6 @@ input[type=email]:placeholder {
   bottom: 0.35rem;
   left: 0.2rem;
 }
-
-
 
 body {
   padding-top: 40px;
@@ -444,8 +431,8 @@ body {
 }
 
 .btnx {
-  color: #D1E8E4;
-  border: 1px solid #D1E8E4;
+  color: #d1e8e4;
+  border: 1px solid #d1e8e4;
   border-radius: 0;
   font-size: 1.5em;
   padding: 10px 35px;
@@ -457,13 +444,11 @@ body {
 }
 
 .btn-1:hover {
-  background: #A7D2DD;
+  background: #a7d2dd;
 }
 
-
 .btn {
-  background: #D1E8E4;
-  border: #D1E8E4;
+  background: #d1e8e4;
+  border: #d1e8e4;
   color: #0d0d0d;
-
 }

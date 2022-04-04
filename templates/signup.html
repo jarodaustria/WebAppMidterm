@@ -1,3 +1,4 @@
+<body style="background-color:#D1E8E4;">
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
@@ -18,20 +19,15 @@ Sign Up
   <div id="formContent">
     <!-- Tabs Titles -->
 
-    <!-- Icon -->
-    <div class="fadeIn first">
-      <img src="/static/icons8-user.png" id="icon" alt="User Icon" />
-    </div>
-
-    <form method="POST" action="/signup">
+    <form class="form-signin" method="POST" action="/signup">
       <h2 class="form-signin-heading">Sign Up</h2>
-      {{ form.hidden_tag() }}
-      {{ form.email(class_="fadeIn second", placeholder="email") }}
-      {{ form.username(class_="fadeIn third",placeholder="username") }}
-      {{ form.password(class_="fadeIn fourth",placeholder="password") }}
+        {{ form.hidden_tag() }}
+        {{ wtf.form_field(form.email) }}
+        {{ wtf.form_field(form.username) }}
+        {{ wtf.form_field(form.password) }}
+        
       
-     
-    <button class="btn btn-lg btn-primary btn-block fadeIn fourth btnx btn-1" type="submit">Sign Up</button>
+      <button class="btn btn-lg btn-primary btn-block fadeIn fourth btnx btn-1" type="submit">Sign Up</button>
     </form>
  
   </div>
