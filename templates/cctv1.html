@@ -55,7 +55,14 @@
     </div>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
       <h1 class="page-header">Welcome, {{ name }}</h1>
-
+      <div class="container">
+        <div class="row">
+            <div class="col-lg-8  offset-lg-2">
+                <h3 class="mt-5">Live Streaming</h3>
+                <img src="{{ url_for('video_feed') }}" width="100%">
+            </div>
+        </div>
+      </div>
       <canvas id="myChart" max-width="100" max-height="100"></canvas>
       <script>
         var ctx = document.getElementById('myChart').getContext('2d');
