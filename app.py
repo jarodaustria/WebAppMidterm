@@ -7,6 +7,7 @@ from wtforms.validators import InputRequired, Email, Length
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
@@ -23,6 +24,17 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(15), unique=True)
     email = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(80))
+
+# Crime database, version 1
+
+
+class Crime(db.Model):
+    __bind_key__ = 'crime'
+    id = db.Column(db.Integer, primary_key=True)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    filename = db.Column(db.String(100))
+    verify = db.Column(db.Boolean)
+    data = db.Column(db.LargeBinary)
 
 
 @login_manager.user_loader
@@ -112,6 +124,28 @@ def logout():
 @login_required
 def cctv():
     return render_template('cctv1.html', name=current_user.username)
+
+
+@app.route('/notification')
+@login_required
+def notification():
+    return render_template('notification.html', name=current_user.username)
+
+# Crime database, version 1 function
+
+
+@app.route('/crimes', methods=['GET', 'POST'])
+@login_required
+def crimes():
+    if request.method == "POST":
+        file = request.files['file']
+
+        upload = Crime(filename=file.filename, data=file.read())
+        db.session.add(upload)
+        db.session.commit()
+        return f'Uploaded: {file.filename}'
+
+    return render_template('crimes.html', name=current_user.username)
 
 
 @app.route('/delete_user/<int:id>')
