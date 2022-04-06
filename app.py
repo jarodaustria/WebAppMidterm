@@ -34,7 +34,7 @@ class Crime(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     filename = db.Column(db.String(100))
-    #verify = db.Column(db.Boolean)
+    verify = db.Column(db.Boolean)
     data = db.Column(db.LargeBinary)
 
 
@@ -143,7 +143,7 @@ def crimes():
 
         upload = Crime(filename=file.filename, data=file.read())
         db.session.add(upload)
-        db.session.commit
+        db.session.commit()
         return f'Uploaded: {file.filename}'
 
     return render_template('crimes.html', name=current_user.username)
