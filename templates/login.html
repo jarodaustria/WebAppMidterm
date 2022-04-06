@@ -33,10 +33,16 @@ Login
         {{ wtf.form_field(form.username) }}
         {{ wtf.form_field(form.password) }}
         {{ wtf.form_field(form.remember) }}
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      <button class="btn btn-lg btn-primary btn-block btnx btn-1" type="submit">Sign in</button>
+      <!-- btn btn-lg btn-primary btn-block -->
+      <br>
+      <a href="{{ url_for('signup') }}">No Account? Sign up</a>
+      <br> 
+      <br> 
     </form>
-  
+    
   </div>
+  
 </div>
 </div>
 </div>

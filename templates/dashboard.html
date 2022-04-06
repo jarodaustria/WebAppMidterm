@@ -27,7 +27,6 @@ Dashboard
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
         <li><a href="{{ url_for('admin') }}">Admin</a></li>
         <li><a href="#">Profile</a></li>
         <li><a href="{{ url_for('logout') }}">Log Out</a></li>
@@ -43,11 +42,12 @@ Dashboard
   <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
       <ul class="nav nav-sidebar">
-        <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
-        <li><a href="#">Reports</a></li>
+        <li class="active"><a href="#">Dashboard <span class="sr-only">(current)</span></a></li>
+        <!--<li><a href="#">Reports</a></li>
         <li><a href="#">Analytics</a></li>
-        <li><a href="#">Export</a></li>
+        <li><a href="#">Export</a></li>-->
         <li><a href="{{ url_for('notification') }}">Notifications</a></li>
+        <li><a href="{{ url_for('crimes') }}">Videos</a></li>
       </ul>
       <ul class="nav nav-sidebar">
         <li><a href="{{ url_for('cctv') }}">CCTV 1</a></li>
