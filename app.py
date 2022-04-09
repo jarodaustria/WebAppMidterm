@@ -1,5 +1,5 @@
 from enum import unique
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, Response
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
+import cv2
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
@@ -18,6 +19,8 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+camera = cv2.VideoCapture(0)
 
 
 class User(UserMixin, db.Model):
@@ -147,6 +150,30 @@ def crimes():
         return f'Uploaded: {file.filename}'
 
     return render_template('crimes.html', name=current_user.username)
+
+# Camera function
+
+
+def gen_frames():
+    while True:
+        success, frame = camera.read()  # read the camera frame
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
+
+
+@app.route('/feed')
+def feed():
+    return render_template('cctv1.html')
+
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/delete_user/<int:id>')
