@@ -136,14 +136,12 @@ def cctv():
     SEQUENCE_LENGTH = 30
     classes_list = ["Crime", "Not Crime"]
 
-    reconstructed_model = load_model("pdmodel1_morefightingdataset.hf")
+    reconstructed_model = load_model("crime_notcrime_LRCN_augmented2.hf")
 
     video_reader = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     original_video_width = int(video_reader.get(cv2.CAP_PROP_FRAME_WIDTH))
     original_video_heigth = int(video_reader.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    video_writer = cv2.VideoWriter(out, cv2.VideoWriter_fourcc('M', 'P', '4', 'V'),
-                                   video_reader.get(cv2.CAP_PROP_FPS), (original_video_width, original_video_heigth))
     frames_queue = deque(maxlen=SEQUENCE_LENGTH)
     predicted_class_name = ''
     predicted_label = []
@@ -179,7 +177,6 @@ def cctv():
             break
 
     video_reader.release()
-    video_writer.release()
     return render_template('cctv1.html', name=current_user.username)
 
 
