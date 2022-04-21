@@ -1,4 +1,4 @@
-{% extends "bootstrap/base.html" %}
+{% extends "template.html" %}
 
 {% block title %}
 Dashboard
@@ -6,28 +6,28 @@ Dashboard
 
 {% block styles %}
 {{super()}}
-<link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}">
-<link rel="stylesheet" href="{{url_for('.static', filename='notification.css')}}">
-<link rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
-  integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
-  <!--
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" 
-    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" 
-    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" 
-integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" 
-integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  -->
+
+  
 {% endblock %}
 
 {% block content %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"
   integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ=="
   crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<nav class="navbar navbar-inverse navbar-fixed-top">
+  <!-- <link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}"> -->
+<link rel="stylesheet" href="{{url_for('.static', filename='notification.css')}}">
+<!-- <link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
+  integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" /> -->
+  
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" 
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" 
+integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" 
+integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<!-- <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
@@ -57,11 +57,11 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
   <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
       <ul class="nav nav-sidebar">
-        <li><a href="{{ url_for('dashboard') }}">Dashboard <span class="sr-only">(current)</span></a></li>
+        <li><a href="{{ url_for('dashboard') }}">Dashboard <span class="sr-only">(current)</span></a></li> -->
         <!--<li><a href="#">Reports</a></li>
         <li><a href="#">Analytics</a></li>
         <li><a href="#">Export</a></li>-->
-        <li class="active"><a href="{{ url_for('notification') }}">Notifications</a></li>
+        <!-- <li class="active"><a href="{{ url_for('notification') }}">Notifications</a></li>
         <li><a href="{{ url_for('crimes') }}">Videos</a></li>
       </ul>
       <ul class="nav nav-sidebar">
@@ -70,17 +70,14 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
         <li><a href="">CCTV 3</a></li>
         <li><a href="">CCTV 4</a></li>
         <li><a href="">CCTV 5</a></li>
-      </ul>
+      </ul> -->
       <!--<ul class="nav nav-sidebar">
             <li><a href="">Nav item again</a></li>
             <li><a href="">One more nav</a></li>
             <li><a href="">Another nav item</a></li>
           </ul> -->
-    </div>
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-      
+    <!-- </div> -->
       <h1 class="page-header">Welcome, {{ name }}</h1>
-      
       <div class="container bodyx">
 
         <div class="col-lg-9 right">
@@ -150,7 +147,7 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
                           <div class="col-7">
                             <p><strong>CCTV 1</strong></p>
                             <p>April 4, 2022 08:22:56 PM <br> Stealing: 98% </p>
-                            <button type="button" class="btn btn-danger btn-md">CRIME</button>
+                            <a href="{{ url_for('crimes') }}"><button type="button" class="btn btn-danger btn-md">CRIME</button></a>
                             <button type="button" class="btn btn-info btn-md">NOT A CRIME</button>
 
                           </div>
@@ -196,7 +193,7 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
                       aria-haspopup="true" aria-expanded="false">
                       <i class="mdi mdi-dots-vertical"></i>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-right" style="">
+                    <div class="dropdown-menu dropdown-menu-right">
                       <button class="dropdown-item" type="button"><i class="mdi mdi-delete"></i> Delete</button>
                       <button class="dropdown-item" type="button"><i class="mdi mdi-close"></i> Turn Off</button>
                     </div>
@@ -380,8 +377,8 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    
+  <!-- </div>
 </div>
-</div>
+</div> -->
 {% endblock %}

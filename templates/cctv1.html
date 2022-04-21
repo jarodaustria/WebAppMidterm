@@ -1,10 +1,10 @@
-{% extends "cctvtemplate.html" %}
+{% extends "template.html" %}
 {% block content %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"
   integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ=="
   crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<!-- <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
@@ -33,11 +33,11 @@
   <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
       <ul class="nav nav-sidebar">
-        <li><a href="{{ url_for('dashboard') }}">Dashboard <span class="sr-only">(current)</span></a></li>
+        <li><a href="{{ url_for('dashboard') }}">Dashboard <span class="sr-only">(current)</span></a></li> -->
         <!--<li><a href="#">Reports</a></li>
         <li><a href="#">Analytics</a></li>
         <li><a href="#">Export</a></li>-->
-        <li><a href="{{ url_for('notification') }}">Notifications</a></li>
+        <!-- <li><a href="{{ url_for('notification') }}">Notifications</a></li>
         <li><a href="{{ url_for('crimes') }}">Videos</a></li>
       </ul>
       <ul class="nav nav-sidebar">
@@ -46,14 +46,13 @@
         <li><a href="">CCTV 3</a></li>
         <li><a href="">CCTV 4</a></li>
         <li><a href="">CCTV 5</a></li>
-      </ul>
+      </ul> -->
       <!--<ul class="nav nav-sidebar">
             <li><a href="">Nav item again</a></li>
             <li><a href="">One more nav</a></li>
             <li><a href="">Another nav item</a></li>
           </ul> -->
-    </div>
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <!-- </div> -->
       <h1 class="page-header">Welcome, {{ name }}</h1>
       <div class="container">
         <div class="row">
@@ -99,7 +98,7 @@
           }
         });
       </script>
-    </div>
-  </div>
-</div>
+    
+  <!-- </div>
+</div> -->
 {% endblock %}
