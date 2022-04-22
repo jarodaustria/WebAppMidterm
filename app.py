@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
 import cv2
+import tensorflow as tf
 from keras.models import load_model
 from collections import deque
 from moviepy.editor import *
@@ -26,6 +27,13 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 camera = cv2.VideoCapture(0)
+IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
+
+SEQUENCE_LENGTH = 30
+
+classes_list = ["Crime", "Not Crime"]
+reconstructed_model = load_model(
+    "grayscale_trimmed_flipped_augmented_orignormals_nonormalaugment_Video_16batch_86p.hf")
 
 
 class User(UserMixin, db.Model):
@@ -132,51 +140,54 @@ def logout():
 @app.route('/cctv')
 @login_required
 def cctv():
-    IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
-    SEQUENCE_LENGTH = 30
-    classes_list = ["Crime", "Not Crime"]
+    # IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
+    # SEQUENCE_LENGTH = 30
+    # classes_list = ["Crime", "Not Crime"]
 
-    reconstructed_model = load_model("crime_notcrime_LRCN_augmented2.hf")
+    # reconstructed_model = load_model("pdmodel1_morefightingdataset.hf")
 
-    video_reader = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    original_video_width = int(video_reader.get(cv2.CAP_PROP_FRAME_WIDTH))
-    original_video_heigth = int(video_reader.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    # video_reader = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    # original_video_width = int(video_reader.get(cv2.CAP_PROP_FRAME_WIDTH))
+    # original_video_heigth = int(video_reader.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    frames_queue = deque(maxlen=SEQUENCE_LENGTH)
-    predicted_class_name = ''
-    predicted_label = []
+    # video_writer = cv2.VideoWriter(out, cv2.VideoWriter_fourcc('M', 'P', '4', 'V'),
+    #                                 video_reader.get(cv2.CAP_PROP_FPS), (original_video_width, original_video_heigth))
+    # frames_queue = deque(maxlen=SEQUENCE_LENGTH)
+    # predicted_class_name = ''
+    # predicted_label = []
 
-    while True:
-        ok, frame = video_reader.read()
+    # while True:
+    #     ok, frame = video_reader.read()
 
-        if not ok:
-            break
+    #     if not ok:
+    #         break
 
-        frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
-        resized_frame = cv2.resize(frame, (IMAGE_HEIGHT, IMAGE_WIDTH))
+    #     frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
+    #     resized_frame = cv2.resize(frame, (IMAGE_HEIGHT, IMAGE_WIDTH))
 
-        normalized_frame = resized_frame/255
+    #     normalized_frame = resized_frame/255
 
-        frames_queue.append(normalized_frame)
+    #     frames_queue.append(normalized_frame)
 
-        if len(frames_queue) == SEQUENCE_LENGTH:
-            print(reconstructed_model.predict(
-                np.expand_dims(frames_queue, axis=0)))
-            predicted_labels_probabilities = reconstructed_model.predict(
-                np.expand_dims(frames_queue, axis=0))[0]
+    #     if len(frames_queue) == SEQUENCE_LENGTH:
+    #         print(reconstructed_model.predict(
+    #             np.expand_dims(frames_queue, axis=0)))
+    #         predicted_labels_probabilities = reconstructed_model.predict(
+    #             np.expand_dims(frames_queue, axis=0))[0]
 
-            predicted_label = np.argmax(predicted_labels_probabilities)
+    #         predicted_label = np.argmax(predicted_labels_probabilities)
 
-            predicted_class_name = classes_list[predicted_label]
-            print(predicted_class_name, "-", predicted_label)
-            cv2.putText(frame, predicted_class_name, (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    #         predicted_class_name = classes_list[predicted_label]
+    #         print(predicted_class_name, "-", predicted_label)
+    #         cv2.putText(frame, predicted_class_name, (10, 30),
+    #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-        cv2.imshow("Video", frame)
-        if cv2.waitKey(10) & 0xFF == ord('q'):
-            break
+    #     cv2.imshow("Video", frame)
+    #     if cv2.waitKey(10) & 0xFF == ord('q'):
+    #         break
 
-    video_reader.release()
+    # video_reader.release()
+    # video_writer.release()
     return render_template('cctv1.html', name=current_user.username)
 
 
@@ -205,11 +216,36 @@ def crimes():
 
 
 def gen_frames():
+    video_reader = camera
+
+    frames_queue = deque(maxlen=SEQUENCE_LENGTH)
+
+    predicted_class_name = ''
+    predicted_label = []
     while True:
         success, frame = camera.read()  # read the camera frame
         if not success:
             break
         else:
+            frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
+            resized_frame = cv2.resize(frame, (IMAGE_HEIGHT, IMAGE_WIDTH))
+
+            normalized_frame = resized_frame/255
+
+            frames_queue.append(normalized_frame)
+
+            if len(frames_queue) == SEQUENCE_LENGTH:
+                print(reconstructed_model.predict(
+                    np.expand_dims(frames_queue, axis=0)))
+                predicted_labels_probabilities = reconstructed_model.predict(
+                    np.expand_dims(frames_queue, axis=0))[0]
+
+                predicted_label = np.argmax(predicted_labels_probabilities)
+
+                predicted_class_name = classes_list[predicted_label]
+                print(predicted_class_name, "-", predicted_label)
+                cv2.putText(frame, predicted_class_name, (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
