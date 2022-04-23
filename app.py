@@ -219,6 +219,10 @@ def gen_frames():
     video_reader = camera
 
     frames_queue = deque(maxlen=SEQUENCE_LENGTH)
+    cctv1_queue = deque(maxlen=SEQUENCE_LENGTH)
+    cctv2_queue = deque(maxlen=SEQUENCE_LENGTH)
+    cctv3_queue = deque(maxlen=SEQUENCE_LENGTH)
+    cctv4_queue = deque(maxlen=SEQUENCE_LENGTH)
 
     predicted_class_name = ''
     predicted_label = []
@@ -228,28 +232,98 @@ def gen_frames():
             break
         else:
             frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
+            
+            cctv1 = frame[0:242,0:310]
+            cctv2 = frame[242:484,0:310]
+            cctv3 = frame[0:242,310:620]
+            cctv4 = frame[242:484,310:620]
+
             resized_frame = cv2.resize(frame, (IMAGE_HEIGHT, IMAGE_WIDTH))
+
+            resized_cctv1 = cv2.resize(cctv1, (IMAGE_HEIGHT, IMAGE_WIDTH))
+            resized_cctv2 = cv2.resize(cctv2, (IMAGE_HEIGHT, IMAGE_WIDTH))
+            resized_cctv3 = cv2.resize(cctv3, (IMAGE_HEIGHT, IMAGE_WIDTH))
+            resized_cctv4 = cv2.resize(cctv4, (IMAGE_HEIGHT, IMAGE_WIDTH))
 
             normalized_frame = resized_frame/255
 
+            normalized_cctv1 = resized_cctv1/255
+            normalized_cctv2 = resized_cctv2/255
+            normalized_cctv3 = resized_cctv3/255
+            normalized_cctv4 = resized_cctv4/255
+
+
             frames_queue.append(normalized_frame)
 
+            cctv1_queue.append(normalized_cctv1)
+            cctv2_queue.append(normalized_cctv2)
+            cctv3_queue.append(normalized_cctv3)
+            cctv4_queue.append(normalized_cctv4)
+
             if len(frames_queue) == SEQUENCE_LENGTH:
-                print(reconstructed_model.predict(
-                    np.expand_dims(frames_queue, axis=0)))
+                # print(reconstructed_model.predict(
+                #     np.expand_dims(frames_queue, axis=0)))
+                
                 predicted_labels_probabilities = reconstructed_model.predict(
                     np.expand_dims(frames_queue, axis=0))[0]
 
+                predicted_labels_probabilities_cctv1 = reconstructed_model.predict(
+                    np.expand_dims(cctv1_queue, axis=0))[0]
+                predicted_labels_probabilities_cctv2 = reconstructed_model.predict(
+                    np.expand_dims(cctv2_queue, axis=0))[0]
+                predicted_labels_probabilities_cctv3 = reconstructed_model.predict(
+                    np.expand_dims(cctv3_queue, axis=0))[0]
+                predicted_labels_probabilities_cctv4 = reconstructed_model.predict(
+                    np.expand_dims(cctv4_queue, axis=0))[0]
+
                 predicted_label = np.argmax(predicted_labels_probabilities)
 
+                predicted_label_cctv1 = np.argmax(predicted_labels_probabilities_cctv1)
+                predicted_label_cctv2 = np.argmax(predicted_labels_probabilities_cctv2)
+                predicted_label_cctv3 = np.argmax(predicted_labels_probabilities_cctv3)
+                predicted_label_cctv4 = np.argmax(predicted_labels_probabilities_cctv4)
+
                 predicted_class_name = classes_list[predicted_label]
-                print(predicted_class_name, "-", predicted_label)
-                cv2.putText(frame, predicted_class_name, (10, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
+                
+                predicted_class_name_cctv1 = classes_list[predicted_label_cctv1]
+                predicted_class_name_cctv2 = classes_list[predicted_label_cctv2]
+                predicted_class_name_cctv3 = classes_list[predicted_label_cctv3]
+                predicted_class_name_cctv4 = classes_list[predicted_label_cctv4]
+
+                # print("cctv1", predicted_class_name_cctv1, "-", predicted_label_cctv1)
+                # print("cctv2", predicted_class_name_cctv2, "-", predicted_label_cctv2)
+                # print("cctv3", predicted_class_name_cctv3, "-", predicted_label_cctv3)
+                # print("cctv4", predicted_class_name_cctv4, "-", predicted_label_cctv4)
+
+                cv2.putText(cctv1, predicted_class_name_cctv1, (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(cctv1, str(predicted_labels_probabilities_cctv1), (10, 60),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+                cv2.putText(cctv2, predicted_class_name_cctv2, (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(cctv2, str(predicted_labels_probabilities_cctv1), (10, 60),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+                cv2.putText(cctv3, predicted_class_name_cctv3, (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(cctv3, str(predicted_labels_probabilities_cctv1), (10, 60),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                
+                cv2.putText(cctv4, predicted_class_name_cctv4, (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(cctv4, str(predicted_labels_probabilities_cctv1), (10, 60),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                
+            
+            output_frame_1 = cv2.vconcat((cctv1, cctv2))
+            output_frame_2 = cv2.vconcat((cctv3,cctv4))
+            output_frame = cv2.hconcat((output_frame_1,output_frame_2))
+
+            ret, buffer = cv2.imencode('.jpg', output_frame)
+            output_frame = buffer.tobytes()
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
+                   b'Content-Type: image/jpeg\r\n\r\n' + output_frame + b'\r\n')  # concat frame one by one and show result
 
 
 @app.route('/feed')
