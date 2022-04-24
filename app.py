@@ -1,5 +1,6 @@
 from enum import unique
 from flask import Flask, render_template, redirect, url_for, request, Response
+from rsa import verify
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
@@ -15,6 +16,9 @@ from collections import deque
 from moviepy.editor import *
 import numpy as np
 import os
+from flask import json
+import flask
+from sqlalchemy import func
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
@@ -52,7 +56,7 @@ class Crime(db.Model):
     filename = db.Column(db.String(100))
     verify = db.Column(db.Boolean)
     data = db.Column(db.LargeBinary)
-
+    
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -116,7 +120,23 @@ def signup():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', name=current_user.username)
+    date_query = db.select([Crime.date_created])    
+    date = db.session.execute(date_query).fetchall()
+    date_list = []
+
+    for i in date:
+        date_list.append(str((i[0].date())))
+ 
+    date = date_list
+    date, detections = np.unique(date_list, return_counts=True)
+    date =list(date)
+    detect = []
+    for i in detections:
+        detect.append(str(i))
+    detections = list(detections)
+    date_data = {"date":date, "detections":detect}
+    print(date)
+    return render_template('dashboard.html', name=current_user.username, date=date, detections=detections) # data for dashboard data visualization
 
 
 @app.route('/admin')
@@ -139,55 +159,7 @@ def logout():
 
 @app.route('/cctv')
 @login_required
-def cctv():
-    # IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
-    # SEQUENCE_LENGTH = 30
-    # classes_list = ["Crime", "Not Crime"]
-
-    # reconstructed_model = load_model("pdmodel1_morefightingdataset.hf")
-
-    # video_reader = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    # original_video_width = int(video_reader.get(cv2.CAP_PROP_FRAME_WIDTH))
-    # original_video_heigth = int(video_reader.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-    # video_writer = cv2.VideoWriter(out, cv2.VideoWriter_fourcc('M', 'P', '4', 'V'),
-    #                                 video_reader.get(cv2.CAP_PROP_FPS), (original_video_width, original_video_heigth))
-    # frames_queue = deque(maxlen=SEQUENCE_LENGTH)
-    # predicted_class_name = ''
-    # predicted_label = []
-
-    # while True:
-    #     ok, frame = video_reader.read()
-
-    #     if not ok:
-    #         break
-
-    #     frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
-    #     resized_frame = cv2.resize(frame, (IMAGE_HEIGHT, IMAGE_WIDTH))
-
-    #     normalized_frame = resized_frame/255
-
-    #     frames_queue.append(normalized_frame)
-
-    #     if len(frames_queue) == SEQUENCE_LENGTH:
-    #         print(reconstructed_model.predict(
-    #             np.expand_dims(frames_queue, axis=0)))
-    #         predicted_labels_probabilities = reconstructed_model.predict(
-    #             np.expand_dims(frames_queue, axis=0))[0]
-
-    #         predicted_label = np.argmax(predicted_labels_probabilities)
-
-    #         predicted_class_name = classes_list[predicted_label]
-    #         print(predicted_class_name, "-", predicted_label)
-    #         cv2.putText(frame, predicted_class_name, (10, 30),
-    #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-    #     cv2.imshow("Video", frame)
-    #     if cv2.waitKey(10) & 0xFF == ord('q'):
-    #         break
-
-    # video_reader.release()
-    # video_writer.release()
+def cctv():  
     return render_template('cctv1.html', name=current_user.username)
 
 
@@ -213,8 +185,6 @@ def crimes():
     return render_template('crimes.html', name=current_user.username)
 
 # Camera function
-
-
 def gen_frames():
     video_reader = camera
 
@@ -235,15 +205,15 @@ def gen_frames():
             frames_queue.append(normalized_frame)
 
             if len(frames_queue) == SEQUENCE_LENGTH:
-                print(reconstructed_model.predict(
-                    np.expand_dims(frames_queue, axis=0)))
+                # print(reconstructed_model.predict(
+                #     np.expand_dims(frames_queue, axis=0)))
                 predicted_labels_probabilities = reconstructed_model.predict(
                     np.expand_dims(frames_queue, axis=0))[0]
 
                 predicted_label = np.argmax(predicted_labels_probabilities)
 
                 predicted_class_name = classes_list[predicted_label]
-                print(predicted_class_name, "-", predicted_label)
+                # print(predicted_class_name, "-", predicted_label)
                 cv2.putText(frame, predicted_class_name, (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             ret, buffer = cv2.imencode('.jpg', frame)

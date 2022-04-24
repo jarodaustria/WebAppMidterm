@@ -13,6 +13,7 @@ Dashboard
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"
   integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ=="
   crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <!-- <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
     <div class="navbar-header">
@@ -43,10 +44,10 @@ Dashboard
     <div class="col-sm-3 col-md-2 sidebar">
       <ul class="nav nav-sidebar">
         <li class="active"><a href="#">Dashboard <span class="sr-only">(current)</span></a></li> -->
-        <!--<li><a href="#">Reports</a></li>
+<!--<li><a href="#">Reports</a></li>
         <li><a href="#">Analytics</a></li>
         <li><a href="#">Export</a></li>-->
-        <!-- <li><a href="{{ url_for('notification') }}">Notifications</a></li>
+<!-- <li><a href="{{ url_for('notification') }}">Notifications</a></li>
         <li><a href="{{ url_for('crimes') }}">Videos</a></li>
       </ul>
       <ul class="nav nav-sidebar">
@@ -56,51 +57,52 @@ Dashboard
         <li><a href="">CCTV 4</a></li>
         <li><a href="">CCTV 5</a></li>
       </ul> -->
-      <!--<ul class="nav nav-sidebar">
+<!--<ul class="nav nav-sidebar">
             <li><a href="">Nav item again</a></li>
             <li><a href="">One more nav</a></li>
             <li><a href="">Another nav item</a></li>
           </ul> -->
-     <!-- </div> -->
-      <h1 class="page-header">Welcome, {{ name }}</h1>
-      <canvas id="myChart" max-width="100" max-height="100"></canvas>
-      <script>
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: ['CCTV 1', 'CCTV 2', 'CCTV 3', 'CCTV 4', 'CCTV 5'],
-            datasets: [{
-              label: 'Number of Detections',
-              data: [12, 19, 3, 5, 2],
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)'
-              ],
-              borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)'
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
-          }
-        });
-      </script>
-    
-  <!-- </div>
+<!-- </div> -->
+<h1 class="page-header">Welcome, {{ name }}</h1>
+<canvas id="myChart" max-width="100" max-height="100"></canvas>
+<script>
+  function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+  var ctx = document.getElementById('myChart').getContext('2d');
+
+  var date = "{{ date|safe}}";
+  var detections = "{{ detections|safe }}";
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: date,
+      datasets: [{
+        label: 'Number of Detections for CCTV 1',
+        data: detections,
+        backgroundColor: getRandomColor(),
+        borderWidth: 1,
+
+
+      }]
+    },
+    options: {
+      spanGaps: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+
+      }
+    }
+  });
+</script>
+
+<!-- </div>
 </div> -->
 {% endblock %}
-
