@@ -233,8 +233,9 @@ def gen_frames():
         if not success:
             break
         else:
-            frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
             
+            frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
+            #Frames
             cctv1 = frame[0:242,0:310]
             cctv2 = frame[242:484,0:310]
             cctv3 = frame[0:242,310:620]
@@ -280,15 +281,14 @@ def gen_frames():
                 predicted_labels_probabilities_cctv4 = reconstructed_model.predict(
                     np.expand_dims(cctv4_queue, axis=0))[0]
 
+                #class index number
                 predicted_label = np.argmax(predicted_labels_probabilities)
-
                 predicted_label_cctv1 = np.argmax(predicted_labels_probabilities_cctv1)
                 predicted_label_cctv2 = np.argmax(predicted_labels_probabilities_cctv2)
                 predicted_label_cctv3 = np.argmax(predicted_labels_probabilities_cctv3)
                 predicted_label_cctv4 = np.argmax(predicted_labels_probabilities_cctv4)
-
+                #class name
                 predicted_class_name = classes_list[predicted_label]
-                
                 predicted_class_name_cctv1 = classes_list[predicted_label_cctv1]
                 predicted_class_name_cctv2 = classes_list[predicted_label_cctv2]
                 predicted_class_name_cctv3 = classes_list[predicted_label_cctv3]
