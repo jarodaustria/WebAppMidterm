@@ -33,7 +33,7 @@ SEQUENCE_LENGTH = 30
 
 classes_list = ["Crime", "Not Crime"]
 reconstructed_model = load_model(
-    "grayscale_trimmed_flipped_augmented_orignormals_nonormalaugment_Video_16batch_86p.hf")
+    "grayscale_trimmed_flipped_augmented_orignormals_nonormalaugment_Video_16batch_92p.hf")
 
 
 class User(UserMixin, db.Model):
@@ -224,6 +224,7 @@ def gen_frames():
     cctv3_queue = deque(maxlen=SEQUENCE_LENGTH)
     cctv4_queue = deque(maxlen=SEQUENCE_LENGTH)
 
+    count = 0
     predicted_class_name = ''
     predicted_label = []
     while True:
@@ -251,9 +252,11 @@ def gen_frames():
             normalized_cctv2 = resized_cctv2/255
             normalized_cctv3 = resized_cctv3/255
             normalized_cctv4 = resized_cctv4/255
-
-
-            frames_queue.append(normalized_frame)
+            
+            count = count + 1
+            if count == 8:
+                frames_queue.append(normalized_frame)
+                count = 0
 
             cctv1_queue.append(normalized_cctv1)
             cctv2_queue.append(normalized_cctv2)
@@ -320,7 +323,7 @@ def gen_frames():
             output_frame_2 = cv2.vconcat((cctv3,cctv4))
             output_frame = cv2.hconcat((output_frame_1,output_frame_2))
 
-            ret, buffer = cv2.imencode('.jpg', output_frame)
+            ret, buffer = cv2.imencode('.jpg', cctv1)
             output_frame = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + output_frame + b'\r\n')  # concat frame one by one and show result
