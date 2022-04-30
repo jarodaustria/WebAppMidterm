@@ -1,6 +1,5 @@
 from enum import unique
 from flask import Flask, render_template, redirect, url_for, request, Response
-from rsa import verify
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
@@ -16,9 +15,6 @@ from collections import deque
 from moviepy.editor import *
 import numpy as np
 import os
-from flask import json
-import flask
-from sqlalchemy import func
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
@@ -35,9 +31,10 @@ IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
 
 SEQUENCE_LENGTH = 30
 
-classes_list = ["Crime", "Not Crime"]
+# classes_list = ["Crime", "Not Crime"]
+classes_list = ["Not Crime", "Assault", "Shooting"]
 reconstructed_model = load_model(
-    "grayscale_trimmed_flipped_augmented_orignormals_nonormalaugment_Video_16batch_86p.hf")
+    "threeClass_90p.hf")
 
 
 class User(UserMixin, db.Model):
@@ -50,13 +47,13 @@ class User(UserMixin, db.Model):
 
 
 class Crime(db.Model):
-    __bind_key__ = 'crime'
+    _bind_key_ = 'crime'
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     filename = db.Column(db.String(100))
     verify = db.Column(db.Boolean)
     data = db.Column(db.LargeBinary)
-    
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -120,23 +117,7 @@ def signup():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    date_query = db.select([Crime.date_created])    
-    date = db.session.execute(date_query).fetchall()
-    date_list = []
-
-    for i in date:
-        date_list.append(str((i[0].date())))
- 
-    date = date_list
-    date, detections = np.unique(date_list, return_counts=True)
-    date =list(date)
-    detect = []
-    for i in detections:
-        detect.append(str(i))
-    detections = list(detections)
-    date_data = {"date":date, "detections":detect}
-    print(date)
-    return render_template('dashboard.html', name=current_user.username, date=date, detections=detections) # data for dashboard data visualization
+    return render_template('dashboard.html', name=current_user.username)
 
 
 @app.route('/admin')
@@ -159,7 +140,55 @@ def logout():
 
 @app.route('/cctv')
 @login_required
-def cctv():  
+def cctv():
+    # IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
+    # SEQUENCE_LENGTH = 30
+    # classes_list = ["Crime", "Not Crime"]
+
+    # reconstructed_model = load_model("pdmodel1_morefightingdataset.hf")
+
+    # video_reader = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    # original_video_width = int(video_reader.get(cv2.CAP_PROP_FRAME_WIDTH))
+    # original_video_heigth = int(video_reader.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    # video_writer = cv2.VideoWriter(out, cv2.VideoWriter_fourcc('M', 'P', '4', 'V'),
+    #                                 video_reader.get(cv2.CAP_PROP_FPS), (original_video_width, original_video_heigth))
+    # frames_queue = deque(maxlen=SEQUENCE_LENGTH)
+    # predicted_class_name = ''
+    # predicted_label = []
+
+    # while True:
+    #     ok, frame = video_reader.read()
+
+    #     if not ok:
+    #         break
+
+    #     frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
+    #     resized_frame = cv2.resize(frame, (IMAGE_HEIGHT, IMAGE_WIDTH))
+
+    #     normalized_frame = resized_frame/255
+
+    #     frames_queue.append(normalized_frame)
+
+    #     if len(frames_queue) == SEQUENCE_LENGTH:
+    #         print(reconstructed_model.predict(
+    #             np.expand_dims(frames_queue, axis=0)))
+    #         predicted_labels_probabilities = reconstructed_model.predict(
+    #             np.expand_dims(frames_queue, axis=0))[0]
+
+    #         predicted_label = np.argmax(predicted_labels_probabilities)
+
+    #         predicted_class_name = classes_list[predicted_label]
+    #         print(predicted_class_name, "-", predicted_label)
+    #         cv2.putText(frame, predicted_class_name, (10, 30),
+    #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+    #     cv2.imshow("Video", frame)
+    #     if cv2.waitKey(10) & 0xFF == ord('q'):
+    #         break
+
+    # video_reader.release()
+    # video_writer.release()
     return render_template('cctv1.html', name=current_user.username)
 
 
@@ -185,11 +214,18 @@ def crimes():
     return render_template('crimes.html', name=current_user.username)
 
 # Camera function
+
+
 def gen_frames():
     video_reader = camera
 
     frames_queue = deque(maxlen=SEQUENCE_LENGTH)
+    cctv1_queue = deque(maxlen=SEQUENCE_LENGTH)
+    cctv2_queue = deque(maxlen=SEQUENCE_LENGTH)
+    cctv3_queue = deque(maxlen=SEQUENCE_LENGTH)
+    cctv4_queue = deque(maxlen=SEQUENCE_LENGTH)
 
+    count = 0
     predicted_class_name = ''
     predicted_label = []
     while True:
@@ -197,29 +233,101 @@ def gen_frames():
         if not success:
             break
         else:
+            
             frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
+            #Frames
+            cctv1 = frame[0:242,0:310]
+            cctv2 = frame[242:484,0:310]
+            cctv3 = frame[0:242,310:620]
+            cctv4 = frame[242:484,310:620]
+
             resized_frame = cv2.resize(frame, (IMAGE_HEIGHT, IMAGE_WIDTH))
+
+            resized_cctv1 = cv2.resize(cctv1, (IMAGE_HEIGHT, IMAGE_WIDTH))
+            resized_cctv2 = cv2.resize(cctv2, (IMAGE_HEIGHT, IMAGE_WIDTH))
+            resized_cctv3 = cv2.resize(cctv3, (IMAGE_HEIGHT, IMAGE_WIDTH))
+            resized_cctv4 = cv2.resize(cctv4, (IMAGE_HEIGHT, IMAGE_WIDTH))
 
             normalized_frame = resized_frame/255
 
-            frames_queue.append(normalized_frame)
+            normalized_cctv1 = resized_cctv1/255
+            normalized_cctv2 = resized_cctv2/255
+            normalized_cctv3 = resized_cctv3/255
+            normalized_cctv4 = resized_cctv4/255
+            
+            count = count + 1
+            if count == 8:
+                frames_queue.append(normalized_frame)
+                count = 0
+
+            cctv1_queue.append(normalized_cctv1)
+            cctv2_queue.append(normalized_cctv2)
+            cctv3_queue.append(normalized_cctv3)
+            cctv4_queue.append(normalized_cctv4)
 
             if len(frames_queue) == SEQUENCE_LENGTH:
                 # print(reconstructed_model.predict(
                 #     np.expand_dims(frames_queue, axis=0)))
+                
                 predicted_labels_probabilities = reconstructed_model.predict(
                     np.expand_dims(frames_queue, axis=0))[0]
 
-                predicted_label = np.argmax(predicted_labels_probabilities)
+                predicted_labels_probabilities_cctv1 = reconstructed_model.predict(
+                    np.expand_dims(cctv1_queue, axis=0))[0]
+                predicted_labels_probabilities_cctv2 = reconstructed_model.predict(
+                    np.expand_dims(cctv2_queue, axis=0))[0]
+                predicted_labels_probabilities_cctv3 = reconstructed_model.predict(
+                    np.expand_dims(cctv3_queue, axis=0))[0]
+                predicted_labels_probabilities_cctv4 = reconstructed_model.predict(
+                    np.expand_dims(cctv4_queue, axis=0))[0]
 
+                #class index number
+                predicted_label = np.argmax(predicted_labels_probabilities)
+                predicted_label_cctv1 = np.argmax(predicted_labels_probabilities_cctv1)
+                predicted_label_cctv2 = np.argmax(predicted_labels_probabilities_cctv2)
+                predicted_label_cctv3 = np.argmax(predicted_labels_probabilities_cctv3)
+                predicted_label_cctv4 = np.argmax(predicted_labels_probabilities_cctv4)
+                #class name
                 predicted_class_name = classes_list[predicted_label]
-                # print(predicted_class_name, "-", predicted_label)
-                cv2.putText(frame, predicted_class_name, (10, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
+                predicted_class_name_cctv1 = classes_list[predicted_label_cctv1]
+                predicted_class_name_cctv2 = classes_list[predicted_label_cctv2]
+                predicted_class_name_cctv3 = classes_list[predicted_label_cctv3]
+                predicted_class_name_cctv4 = classes_list[predicted_label_cctv4]
+
+                # print("cctv1", predicted_class_name_cctv1, "-", predicted_label_cctv1)
+                # print("cctv2", predicted_class_name_cctv2, "-", predicted_label_cctv2)
+                # print("cctv3", predicted_class_name_cctv3, "-", predicted_label_cctv3)
+                # print("cctv4", predicted_class_name_cctv4, "-", predicted_label_cctv4)
+
+                cv2.putText(cctv1, predicted_class_name_cctv1, (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(cctv1, str(predicted_labels_probabilities_cctv1), (10, 60),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+                cv2.putText(cctv2, predicted_class_name_cctv2, (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(cctv2, str(predicted_labels_probabilities_cctv1), (10, 60),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+                cv2.putText(cctv3, predicted_class_name_cctv3, (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(cctv3, str(predicted_labels_probabilities_cctv1), (10, 60),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                
+                cv2.putText(cctv4, predicted_class_name_cctv4, (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(cctv4, str(predicted_labels_probabilities_cctv1), (10, 60),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                
+            
+            output_frame_1 = cv2.vconcat((cctv1, cctv2))
+            output_frame_2 = cv2.vconcat((cctv3,cctv4))
+            output_frame = cv2.hconcat((output_frame_1,output_frame_2))
+
+            ret, buffer = cv2.imencode('.jpg', cctv1)
+            output_frame = buffer.tobytes()
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
+                   b'Content-Type: image/jpeg\r\n\r\n' + output_frame + b'\r\n')  # concat frame one by one and show result
 
 
 @app.route('/feed')
@@ -271,6 +379,6 @@ def update_user(id):
         return render_template('update_user.html', form=form, user_to_update=user_to_update)
 
 
-if __name__ == '__main__':
+if __name__ == '_main_':
     db.create_all()
     app.run(host="0.0.0.0", port=8080, debug=True)
