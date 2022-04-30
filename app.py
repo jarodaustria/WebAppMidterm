@@ -31,9 +31,10 @@ IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
 
 SEQUENCE_LENGTH = 30
 
-classes_list = ["Crime", "Not Crime"]
+# classes_list = ["Crime", "Not Crime"]
+classes_list = ["Not Crime", "Assault", "Shooting"]
 reconstructed_model = load_model(
-    "grayscale_trimmed_flipped_augmented_orignormals_nonormalaugment_Video_16batch_92p.hf")
+    "threeClass_90p.hf")
 
 
 class User(UserMixin, db.Model):
