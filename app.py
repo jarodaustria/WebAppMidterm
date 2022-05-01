@@ -18,11 +18,20 @@ import os
 from io import BytesIO
 import jinja2
 import threading
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_BINDS'] = {'crime': 'sqlite:///crime.db'}
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+# thesispd2022@gmail.com
+app.config['MAIL_USERNAME'] = 'thesispd2022@gmail.com'
+app.config['MAIL_PASSWORD'] = 'group10pd22022'  # group10pd22022
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 Bootstrap(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -120,7 +129,58 @@ def signup():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', name=current_user.username)
+    date_query = db.select([Crime.date_created])
+    date = db.session.execute(date_query).fetchall()
+    date_list = []
+    verify = Crime.query.filter_by(
+        verify=True).with_entities(Crime.date_created).all()
+    # date_verify = db.select([Crime.verify])
+    # verify = db.session.execute(date_verify).fetchall()
+    verify_list = []
+    # for i in verify:
+    #     if i == None:
+    #         i = False
+    print(date)
+    for i in date:
+        date_list.append(str((i[0].date())))
+    for i in verify:
+        verify_list.append(str((i[0].date())))
+    print(verify_list)
+    date = date_list
+    date, detections = np.unique(date_list, return_counts=True)
+    verify, verified = np.unique(verify_list, return_counts=True)  # 4-0-1
+
+    date = list(date)
+    verify = list(verify)
+    verified = list(verified)
+
+    for i in range(len(date)):
+        if date[i] not in verify:
+            verify.insert(i, date[i])
+            verified.insert(i, 0)
+
+    detect = []
+    for i in detections:
+        detect.append(str(i))
+    detections = list(detections)
+    ver = []
+    for i in verified:  # [4,1] ## [4, 0, 1]
+        ver.append(str(i))
+    print("Here is the date: ", date)
+    print("Here are the detections", detections)
+    print("Here are the verified", verified)  # [4, 0, 1]
+    data = date + detections + verified
+    data = []
+    for i in range(len(date)):
+        data.append((date[i], detections[i], verified[i]))
+
+    print("data", data)
+
+    labels = [row[0]for row in data]
+    values = [row[1] for row in data]
+    values1 = [row[2] for row in data]
+    # data for dashboard data visualization
+    return render_template('dashboard.html', name=current_user.username, labels=labels, values=values, values1=values1)
 
 
 @app.route('/admin')
@@ -227,7 +287,7 @@ def crimes():
     if request.method == "POST":
         file = request.files['file']
 
-        upload = Crime(filename=file.filename, data=file.read())
+        upload = Crime(filename=file.filename, data=file.read(), verify=False)
         db.session.add(upload)
         db.session.commit()
         return f'Uploaded: {file.filename}'
@@ -369,11 +429,16 @@ def confirm_emergency(id):
     confirm = Crime.query.filter_by(id=id).first()
     confirm.verify = True
     db.session.commit()
+
+    msg = Message(
+        'Emergency',
+        sender='thesispd2022@gmail.com',
+        recipients=['kchan01412@gmail.com', 'tyrone.guevarra@gmail.com',
+                    'qjacaustria@tip.edu.ph', 'qaagalit02@tip.edu.ph']
+    )
+    msg.body = 'SA CCTV 1 MAY EMERGENCY BILIS REPORT TO AUTHORITY PLS'
+    mail.send(msg)
     return '<h1> updated </h1>'
-
-
-def send_email(id):
-    return
 
 
 @app.route('/delete_user/<int:id>')
