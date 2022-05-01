@@ -78,7 +78,50 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
           </ul> -->
     <!-- </div> -->
       <h1 class="page-header">Welcome, {{ name }}</h1>
-      <div class="container bodyx">
+      <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+        }
+        
+        tr:nth-child(even) {
+          background-color: #dddddd;
+        }
+        </style>
+  <table>
+      <tr>
+          <th>ID</th>
+          <th>Date</th>
+          <!-- <th>Password</th> -->
+          <th>Video Clip</th>
+          <th></th>
+          <th></th>
+      </tr>
+      {% for u,n in zip(context.crimes, j) %}
+      <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.date_created }}</td>
+          <td center ><video width="500" height="300" controls><source src="static/data/data{{n}}.mp4" type='video/mp4'></video>
+          </td>
+          <td>
+              <a href="{{ url_for('confirm_emergency', id=u.id) }}">Confirm Emergency</a>
+          </td>
+          <td>
+              <a href="" >Not Emergency</a>
+          </td>
+          
+      </tr>
+      {% endfor %}
+  
+  </table>
+      <!-- <div class="container bodyx">
 
         <div class="col-lg-9 right">
           <div class="box shadow-sm rounded bg-white mb-3">
@@ -123,9 +166,9 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
                 <div class="modal fade right" id="modalCrimeDetected" tabindex="-1" role="dialog"
                   aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false">
                   <div class="modal-dialog modal-side modal-bottom-right modal-notify modal-info" role="document">
-                    <!--Content-->
+                    
                     <div class="modal-content">
-                      <!--Header-->
+                      
                       <div class="modal-header">
                         <p class="heading">Verify Anomalous Activity</p>
 
@@ -134,7 +177,7 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
                         </button>
                       </div>
 
-                      <!--Body-->
+                      
                       <div class="modal-body">
 
                         <div class="row">
@@ -154,7 +197,7 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
                         </div>
                       </div>
                     </div>
-                    <!--/.Content-->
+                    
                   </div>
                 </div>
                 <span class="ml-auto mb-auto">
@@ -376,7 +419,7 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
             </div>
           </div>
         </div>
-      </div>
+      </div>  -->
     
   <!-- </div>
 </div>

@@ -1,5 +1,5 @@
 from enum import unique
-from flask import Flask, render_template, redirect, url_for, request, Response
+from flask import Flask, render_template, redirect, url_for, request, Response, send_file
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
@@ -15,6 +15,9 @@ from collections import deque
 from moviepy.editor import *
 import numpy as np
 import os
+from io import BytesIO
+import jinja2
+import threading
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
@@ -25,7 +28,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
+app.jinja_env.globals.update(zip=zip)
 camera = cv2.VideoCapture(0)
 IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
 
@@ -195,7 +198,25 @@ def cctv():
 @app.route('/notification')
 @login_required
 def notification():
-    return render_template('notification.html', name=current_user.username)
+    crimes = Crime.query.all()
+    total_crimes = len(crimes)
+    #crimes = Crime.objects.filter()
+    total_unvalidated_crimes = len(crimes)
+
+    context = {
+        'crimes': crimes,
+        # 'total_crimes': total_crimes,
+        'total_unvalidated_crimes': total_unvalidated_crimes,
+    }
+    i = 0
+    j = []
+    for x in crimes:
+        i = i+1
+        with open('static/data/data{}.mp4'.format(i), 'wb') as f:
+            f.write(x.data)
+        j.append(i)
+    print(j)
+    return render_template('notification.html', name=current_user.username, context=context, zip=zip, j=j)
 
 # Crime database, version 1 function
 
@@ -233,13 +254,13 @@ def gen_frames():
         if not success:
             break
         else:
-            
+
             frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
-            #Frames
-            cctv1 = frame[0:242,0:310]
-            cctv2 = frame[242:484,0:310]
-            cctv3 = frame[0:242,310:620]
-            cctv4 = frame[242:484,310:620]
+            # Frames
+            cctv1 = frame[0:242, 0:310]
+            cctv2 = frame[242:484, 0:310]
+            cctv3 = frame[0:242, 310:620]
+            cctv4 = frame[242:484, 310:620]
 
             resized_frame = cv2.resize(frame, (IMAGE_HEIGHT, IMAGE_WIDTH))
 
@@ -254,7 +275,7 @@ def gen_frames():
             normalized_cctv2 = resized_cctv2/255
             normalized_cctv3 = resized_cctv3/255
             normalized_cctv4 = resized_cctv4/255
-            
+
             count = count + 1
             if count == 8:
                 frames_queue.append(normalized_frame)
@@ -268,7 +289,7 @@ def gen_frames():
             if len(frames_queue) == SEQUENCE_LENGTH:
                 # print(reconstructed_model.predict(
                 #     np.expand_dims(frames_queue, axis=0)))
-                
+
                 predicted_labels_probabilities = reconstructed_model.predict(
                     np.expand_dims(frames_queue, axis=0))[0]
 
@@ -281,13 +302,17 @@ def gen_frames():
                 predicted_labels_probabilities_cctv4 = reconstructed_model.predict(
                     np.expand_dims(cctv4_queue, axis=0))[0]
 
-                #class index number
+                # class index number
                 predicted_label = np.argmax(predicted_labels_probabilities)
-                predicted_label_cctv1 = np.argmax(predicted_labels_probabilities_cctv1)
-                predicted_label_cctv2 = np.argmax(predicted_labels_probabilities_cctv2)
-                predicted_label_cctv3 = np.argmax(predicted_labels_probabilities_cctv3)
-                predicted_label_cctv4 = np.argmax(predicted_labels_probabilities_cctv4)
-                #class name
+                predicted_label_cctv1 = np.argmax(
+                    predicted_labels_probabilities_cctv1)
+                predicted_label_cctv2 = np.argmax(
+                    predicted_labels_probabilities_cctv2)
+                predicted_label_cctv3 = np.argmax(
+                    predicted_labels_probabilities_cctv3)
+                predicted_label_cctv4 = np.argmax(
+                    predicted_labels_probabilities_cctv4)
+                # class name
                 predicted_class_name = classes_list[predicted_label]
                 predicted_class_name_cctv1 = classes_list[predicted_label_cctv1]
                 predicted_class_name_cctv2 = classes_list[predicted_label_cctv2]
@@ -313,16 +338,15 @@ def gen_frames():
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(cctv3, str(predicted_labels_probabilities_cctv1), (10, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-                
+
                 cv2.putText(cctv4, predicted_class_name_cctv4, (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(cctv4, str(predicted_labels_probabilities_cctv1), (10, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-                
-            
+
             output_frame_1 = cv2.vconcat((cctv1, cctv2))
-            output_frame_2 = cv2.vconcat((cctv3,cctv4))
-            output_frame = cv2.hconcat((output_frame_1,output_frame_2))
+            output_frame_2 = cv2.vconcat((cctv3, cctv4))
+            output_frame = cv2.hconcat((output_frame_1, output_frame_2))
 
             ret, buffer = cv2.imencode('.jpg', cctv1)
             output_frame = buffer.tobytes()
@@ -338,6 +362,18 @@ def feed():
 @app.route('/video_feed')
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/confirm_emergency/<int:id>')
+def confirm_emergency(id):
+    confirm = Crime.query.filter_by(id=id).first()
+    confirm.verify = True
+    db.session.commit()
+    return '<h1> updated </h1>'
+
+
+def send_email(id):
+    return
 
 
 @app.route('/delete_user/<int:id>')
