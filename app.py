@@ -1,10 +1,12 @@
+import email
 from enum import unique
-from flask import Flask, render_template, redirect, url_for, request, Response, send_file
+from flask import Flask, render_template, redirect, url_for, request, Response, send_file, flash
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
@@ -112,7 +114,10 @@ def login():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = RegisterForm()
-
+    exist_email = User.query.filter_by(email=form.email.data).first()
+    exist_username = User.query.filter_by(username=form.username.data).first()
+    if (exist_email or exist_username):
+        return '<h1> User already exists! </h1>'
     if form.validate_on_submit():
         hash_password = generate_password_hash(
             form.password.data, method='sha256')
@@ -120,8 +125,8 @@ def signup():
                         email=form.email.data, password=hash_password)
         db.session.add(new_user)
         db.session.commit()
-
-        return '<h1> New user has been created </h1>'
+        flash("Account Created!")
+        # return '<h1> New user has been created </h1>'
 
     return render_template('signup.html', form=form)
 
@@ -268,13 +273,11 @@ def notification():
         # 'total_crimes': total_crimes,
         'total_unvalidated_crimes': total_unvalidated_crimes,
     }
-    i = 0
     j = []
     for x in crimes:
-        i = i+1
-        with open('static/data/data{}.mp4'.format(i), 'wb') as f:
+        with open('static/data/data{}.mp4'.format(x.id), 'wb') as f:
             f.write(x.data)
-        j.append(i)
+        j.append(x.id)
     print(j)
     return render_template('notification.html', name=current_user.username, context=context, zip=zip, j=j)
 
@@ -425,20 +428,26 @@ def video_feed():
 
 
 @app.route('/confirm_emergency/<int:id>')
+@login_required
 def confirm_emergency(id):
+    #user = User.query.all()
     confirm = Crime.query.filter_by(id=id).first()
     confirm.verify = True
     db.session.commit()
-
+    subject = " Emergency for {}".format(current_user.username)
     msg = Message(
-        'Emergency',
+        subject=subject,
         sender='thesispd2022@gmail.com',
-        recipients=['kchan01412@gmail.com', 'tyrone.guevarra@gmail.com',
-                    'qjacaustria@tip.edu.ph', 'qaagalit02@tip.edu.ph']
+        # recipients=['kchan01412@gmail.com', 'tyrone.guevarra@gmail.com',
+        #             'qjacaustria@tip.edu.ph', 'qaagalit02@tip.edu.ph']
+        recipients=['tyrone.guevarra@gmail.com']
     )
     msg.body = 'SA CCTV 1 MAY EMERGENCY BILIS REPORT TO AUTHORITY PLS'
+
+    with app.open_resource('static/data/data{}.mp4'.format(id)) as fp:
+        msg.attach('data{}.mp4'.format(id), "video/mp4", fp.read())
     mail.send(msg)
-    return '<h1> updated </h1>'
+    return redirect(url_for('notification'))
 
 
 @app.route('/delete_user/<int:id>')
@@ -453,12 +462,24 @@ def delete_user(id):
         return '<h1> Failed to delete user. </h1>'
 
 
+@app.route('/delete_notif/<int:id>')
+@login_required
+def delete_notif(id):
+    notif_to_delete = Crime.query.get_or_404(id)
+
+    try:
+        db.session.delete(notif_to_delete)
+        db.session.commit()
+        return redirect(url_for('notification'))
+    except:
+        return '<h1> Failed to delete notif. </h1>'
+
+
 @app.route('/update_user/<int:id>', methods=['GET', 'POST'])
 def update_user(id):
 
     user_to_update = User.query.get_or_404(id)
     form = RegisterForm(obj=user_to_update)
-
     print("updating user...")
 
     if request.method == "POST":

@@ -103,6 +103,7 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
           <th>Video Clip</th>
           <th></th>
           <th></th>
+          <th></th>
       </tr>
       {% for u,n in zip(context.crimes, j) %}
       <tr>
@@ -114,7 +115,10 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
               <a href="{{ url_for('confirm_emergency', id=u.id) }}">Confirm Emergency</a>
           </td>
           <td>
-              <a href="" >Not Emergency</a>
+              <a href="">Not Emergency</a>
+          </td>
+          <td>
+            <a href="{{ url_for('delete_notif', id=u.id) }}" >Delete</a>
           </td>
           
       </tr>

@@ -1,3 +1,4 @@
+{% include "bootstrap/base.html" %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -31,7 +32,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('cctv') }}">
+                    <a href="{{ url_for('cctv') }}" target="blank">
                         <span class="icon"><ion-icon name="videocam-outline"></ion-icon></span>
                         <span class="title">Live Feed</span>
                     </a>
