@@ -20,8 +20,10 @@
     --black2: #999;
     --red: #ff6962;
     --green: #77dd76;
-    --red2: #ffb6b3;
-    --green3: #bde7bd;
+    --red2: #fdc4c2;
+    --red3: #ffd5d4;
+    --green2: #ccebcc;
+    --green3: #e7f1e8;
 }
 body
 {
