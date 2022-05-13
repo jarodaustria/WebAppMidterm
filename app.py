@@ -261,6 +261,12 @@ def crimes():
 
     return render_template('crimes.html', name=current_user.username)
 
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', name=current_user.username)
+
 # Camera function
 
 

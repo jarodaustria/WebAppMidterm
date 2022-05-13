@@ -1,16 +1,34 @@
 table 
 {
     font-family: arial, sans-serif;
+    font-size: 1.75em;
+    /* transform: translate(-50%,-50%); */
     border-collapse: collapse;
     width: 100%;
 }
 td, th 
 {
-    border: 1px solid #dddddd;
+    
     text-align: center;
     padding: 8px;
 }
 a.disabled {
     pointer-events: none;
 }
-
+#header
+{
+    background-color: var(--black2);
+    pointer-events: none;
+}
+tr 
+{
+    border: 2px solid var(--black1);
+    transition: all .1s ease-in;
+    cursor: pointer;
+}
+tr:hover
+{
+    transform: scale(1.01);
+    border: 2px solid var(--black1);
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2), -1px -1px 8px rgba(0, 0, 0, 0.2);
+}

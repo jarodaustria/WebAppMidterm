@@ -77,9 +77,9 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
             <li><a href="">Another nav item</a></li>
           </ul> -->
     <!-- </div> -->
-      <h1 class="page-header">Welcome, {{ name }}</h1>
+      <h1>Welcome, {{ name }}</h1><br>
   <table>
-      <tr>
+      <tr id="header">
           <th>ID</th>
           <th>Date</th>
           <!-- <th>Password</th> -->
@@ -98,16 +98,16 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
           </td>
           <td> Not Yet Verified </td>
           <td>
-              <a role="button" class="btn btn-danger" href="{{ url_for('confirm_emergency', id=u.id) }}">Confirm Emergency</a>
+              <a role="button" class="btn btn-danger btn-lg" href="{{ url_for('confirm_emergency', id=u.id) }}">Confirm Emergency</a>
           </td>
           <!-- <td>
               <button type="button" class="btn btn-success" href="">Not Emergency</button>
           </td> -->
           <td>
-            <a role="button" class="btn btn-dark" href="{{ url_for('delete_notif', id=u.id) }}" >Delete</a>
+            <a role="button" class="btn btn-dark btn-lg" href="{{ url_for('delete_notif', id=u.id) }}" >Delete</a>
           </td> 
       </tr>
-      {% else %}
+      {% else %} 
       <tr style="background-color: var(--green);">
         <td>{{ u.id }}</td>
         <td>{{ u.date_created }}</td>
@@ -115,13 +115,13 @@ integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCm
         </td>
         <td> Verified </td>
         <td>
-            <a role="button" class="btn btn-secondary disabled" href="{{ url_for('confirm_emergency', id=u.id) }}">Confirm Emergency</a>
+            <a role="button" class="btn btn-secondary btn-lg disabled" href="{{ url_for('confirm_emergency', id=u.id) }}">Confirm Emergency</a>
         </td>
         <!-- <td>
             <button type="button" class="btn btn-danger" href="">Not Emergency</button>
         </td> -->
         <td>
-          <a role="button" class="btn btn-dark" href="{{ url_for('delete_notif', id=u.id) }}" >Delete</a>
+          <a role="button" class="btn btn-dark btn-lg" href="{{ url_for('delete_notif', id=u.id) }}" >Delete</a>
         </td> 
       </tr>
       {% endif %}

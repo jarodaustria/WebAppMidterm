@@ -6,11 +6,11 @@
     box-sizing: border-box;
     font-family: 'Ubuntu', sans-serif;
 }
-html *
+/* html *
 {
    font-size: 1.05em !important;
    
-}
+} */
 :root
 {
     --blue: #0E273E;
@@ -37,7 +37,8 @@ body
 {
     position: relative;
     width: 100%;
-    padding: 25px;
+    padding: 50px;
+    font-size: 1.05em;
 }
 .navigation
 {
@@ -113,6 +114,7 @@ body
     display: block;
     padding: 0 10px;
     height: 60px;
+    font-size: 1.75em;
     line-height: 60px;
     text-align: start;
     white-space: nowrap;
@@ -211,7 +213,7 @@ body
     position: absolute;
     top: 10px;
     left: 10px;
-    font-size: 1.2em;
+    font-size: 1.75em;
 }
 .user
 {
@@ -237,10 +239,12 @@ body
     width: 30px;
     height: 30px;
     background: var(--red);
-    color: var(--white);
+    /* color: var(--white); */
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 50%;
     z-index: 100;
+    font-size: 1.5em;
 }
+

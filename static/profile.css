@@ -1,0 +1,23 @@
+.col-md-5
+{   
+    height: 350px;
+    box-sizing: border-box;
+    float: left;
+    text-align: center;
+    padding: 16px;
+    transition: all .1s ease-in;
+    cursor: pointer;
+    background-color: var(--black2);
+    color: var(--white);
+    font-size: 2em;
+}
+.col-md-5:hover
+{
+    transform: scale(1.2);
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2), -1px -1px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+.container
+{
+    width: 1500px;
+}

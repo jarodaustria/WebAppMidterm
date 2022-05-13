@@ -6,7 +6,7 @@ Dashboard
 
 {% block styles %}
 {{super()}}
-<link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}">
+<!-- <link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}"> -->
 {% endblock %}
 
 {% block content %}
@@ -62,17 +62,17 @@ Dashboard
             <li><a href="">Another nav item</a></li>
           </ul> -->
      <!-- </div> -->
-      <h1 class="page-header">Welcome, {{ name }}</h1>
+      <h1>Welcome, {{ name }}</h1><br>
       <canvas id="myChart" max-width="100" max-height="100"></canvas>
       <script>
-         function getRandomColor() {
-    var letters = '0123456789ABCDEF'.split('');
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
+  //        function getRandomColor() {
+  //   var letters = '0123456789ABCDEF'.split('');
+  //   var color = '#';
+  //   for (var i = 0; i < 6; i++) {
+  //     color += letters[Math.floor(Math.random() * 16)];
+  //   }
+  //   return color;
+  // }
   var ctx = document.getElementById('myChart').getContext('2d');
 
   //ar labels = "{{ labels|safe }}";
