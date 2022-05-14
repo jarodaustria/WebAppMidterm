@@ -1,10 +1,13 @@
+import email
+import time
 from enum import unique
-from flask import Flask, render_template, redirect, url_for, request, Response, send_file
+from flask import Flask, render_template, redirect, url_for, request, Response, flash #send_file, 
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
 from flask_sqlalchemy import SQLAlchemy
+# from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
@@ -13,16 +16,27 @@ import tensorflow as tf
 from keras.models import load_model
 from collections import deque
 from moviepy.editor import *
+# import moviepy.editor as mp
+# import moviepy
 import numpy as np
 import os
 from io import BytesIO
-import jinja2
-import threading
+#import jinja2
+#import threading
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SQLALCHEMY_BINDS'] = {'crime': 'sqlite:///crime.db'}
+# app.config['SQLALCHEMY_BINDS'] = {'crime': 'sqlite:///crime.db'}
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+# thesispd2022@gmail.com
+app.config['MAIL_USERNAME'] = 'thesispd2022@gmail.com'
+app.config['MAIL_PASSWORD'] = 'group10pd22022'  # group10pd22022
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 Bootstrap(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -30,6 +44,10 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 app.jinja_env.globals.update(zip=zip)
 camera = cv2.VideoCapture(0)
+
+fourcc = cv2.VideoWriter_fourcc(*'H264')
+video = deque(maxlen=150)
+
 IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
 
 SEQUENCE_LENGTH = 30
@@ -50,7 +68,7 @@ class User(UserMixin, db.Model):
 
 
 class Crime(db.Model):
-    _bind_key_ = 'crime'
+    # __bind_key__ = 'crime'
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     filename = db.Column(db.String(100))
@@ -103,7 +121,10 @@ def login():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = RegisterForm()
-
+    exist_email = User.query.filter_by(email=form.email.data).first()
+    exist_username = User.query.filter_by(username=form.username.data).first()
+    if (exist_email or exist_username):
+        return '<h1> User already exists! </h1>'
     if form.validate_on_submit():
         hash_password = generate_password_hash(
             form.password.data, method='sha256')
@@ -111,19 +132,81 @@ def signup():
                         email=form.email.data, password=hash_password)
         db.session.add(new_user)
         db.session.commit()
-
-        return '<h1> New user has been created </h1>'
+        flash("Account Created!")
+        # return '<h1> New user has been created </h1>'
 
     return render_template('signup.html', form=form)
+
+
+@app.context_processor
+def add_detection_number():
+    detection_false = Crime.query.filter_by(verify=False).all()
+    print(detection_false)
+    detection_number = len(detection_false)
+    print(detection_number)
+
+    return dict(detection_number=detection_number)
 
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', name=current_user.username)
+    date_query = db.select([Crime.date_created])
+    date = db.session.execute(date_query).fetchall()
+    date_list = []
+    verify = Crime.query.filter_by(
+        verify=True).with_entities(Crime.date_created).all()
+    # date_verify = db.select([Crime.verify])
+    # verify = db.session.execute(date_verify).fetchall()
+    verify_list = []
+    # for i in verify:
+    #     if i == None:
+    #         i = False
+    print(date)
+    for i in date:
+        date_list.append(str((i[0].date())))
+    for i in verify:
+        verify_list.append(str((i[0].date())))
+    print(verify_list)
+    date = date_list
+    date, detections = np.unique(date_list, return_counts=True)
+    verify, verified = np.unique(verify_list, return_counts=True)  # 4-0-1
+
+    date = list(date)
+    verify = list(verify)
+    verified = list(verified)
+
+    for i in range(len(date)):
+        if date[i] not in verify:
+            verify.insert(i, date[i])
+            verified.insert(i, 0)
+
+    detect = []
+    for i in detections:
+        detect.append(str(i))
+    detections = list(detections)
+    ver = []
+    for i in verified:  # [4,1] ## [4, 0, 1]
+        ver.append(str(i))
+    print("Here is the date: ", date)
+    print("Here are the detections", detections)
+    print("Here are the verified", verified)  # [4, 0, 1]
+    data = date + detections + verified
+    data = []
+    for i in range(len(date)):
+        data.append((date[i], detections[i], verified[i]))
+
+    print("data", data)
+
+    labels = [row[0]for row in data]
+    values = [row[1] for row in data]
+    values1 = [row[2] for row in data]
+    # data for dashboard data visualization
+    return render_template('dashboard.html', name=current_user.username, labels=labels, values=values, values1=values1)
 
 
 @app.route('/admin')
+@login_required
 def admin():
     users = User.query.all()
 
@@ -144,54 +227,6 @@ def logout():
 @app.route('/cctv')
 @login_required
 def cctv():
-    # IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
-    # SEQUENCE_LENGTH = 30
-    # classes_list = ["Crime", "Not Crime"]
-
-    # reconstructed_model = load_model("pdmodel1_morefightingdataset.hf")
-
-    # video_reader = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    # original_video_width = int(video_reader.get(cv2.CAP_PROP_FRAME_WIDTH))
-    # original_video_heigth = int(video_reader.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-    # video_writer = cv2.VideoWriter(out, cv2.VideoWriter_fourcc('M', 'P', '4', 'V'),
-    #                                 video_reader.get(cv2.CAP_PROP_FPS), (original_video_width, original_video_heigth))
-    # frames_queue = deque(maxlen=SEQUENCE_LENGTH)
-    # predicted_class_name = ''
-    # predicted_label = []
-
-    # while True:
-    #     ok, frame = video_reader.read()
-
-    #     if not ok:
-    #         break
-
-    #     frame = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)
-    #     resized_frame = cv2.resize(frame, (IMAGE_HEIGHT, IMAGE_WIDTH))
-
-    #     normalized_frame = resized_frame/255
-
-    #     frames_queue.append(normalized_frame)
-
-    #     if len(frames_queue) == SEQUENCE_LENGTH:
-    #         print(reconstructed_model.predict(
-    #             np.expand_dims(frames_queue, axis=0)))
-    #         predicted_labels_probabilities = reconstructed_model.predict(
-    #             np.expand_dims(frames_queue, axis=0))[0]
-
-    #         predicted_label = np.argmax(predicted_labels_probabilities)
-
-    #         predicted_class_name = classes_list[predicted_label]
-    #         print(predicted_class_name, "-", predicted_label)
-    #         cv2.putText(frame, predicted_class_name, (10, 30),
-    #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-    #     cv2.imshow("Video", frame)
-    #     if cv2.waitKey(10) & 0xFF == ord('q'):
-    #         break
-
-    # video_reader.release()
-    # video_writer.release()
     return render_template('cctv1.html', name=current_user.username)
 
 
@@ -199,40 +234,40 @@ def cctv():
 @login_required
 def notification():
     crimes = Crime.query.all()
-    total_crimes = len(crimes)
-    #crimes = Crime.objects.filter()
-    total_unvalidated_crimes = len(crimes)
 
     context = {
         'crimes': crimes,
-        # 'total_crimes': total_crimes,
-        'total_unvalidated_crimes': total_unvalidated_crimes,
     }
-    i = 0
     j = []
     for x in crimes:
-        i = i+1
-        with open('static/data/data{}.mp4'.format(i), 'wb') as f:
+        with open('static/data/data{}.mp4'.format(x.id), 'wb') as f:
             f.write(x.data)
-        j.append(i)
+        j.append(x.id)
     print(j)
     return render_template('notification.html', name=current_user.username, context=context, zip=zip, j=j)
 
 # Crime database, version 1 function
 
+### code for manual adding of data in database  ###
 
-@app.route('/crimes', methods=['GET', 'POST'])
+# @app.route('/crimes', methods=['GET', 'POST'])
+# @login_required
+# def crimes():
+#     if request.method == "POST":
+#         file = request.files['file']
+
+#         upload = Crime(filename=file.filename, data=file.read(), verify=False)
+#         db.session.add(upload)
+#         db.session.commit()
+#         return f'Uploaded: {file.filename}'
+
+#     return render_template('crimes.html', name=current_user.username)
+
+
+@app.route('/profile')
 @login_required
-def crimes():
-    if request.method == "POST":
-        file = request.files['file']
-
-        upload = Crime(filename=file.filename, data=file.read())
-        db.session.add(upload)
-        db.session.commit()
-        return f'Uploaded: {file.filename}'
-
-    return render_template('crimes.html', name=current_user.username)
+def profile():
+    return render_template('profile.html', name=current_user.username)
 
 # Camera function
 
@@ -247,8 +282,11 @@ def gen_frames():
     cctv4_queue = deque(maxlen=SEQUENCE_LENGTH)
 
     count = 0
+    count_predict = 0
+    recent_save = False
     predicted_class_name = ''
     predicted_label = []
+
     while True:
         success, frame = camera.read()  # read the camera frame
         if not success:
@@ -277,6 +315,7 @@ def gen_frames():
             normalized_cctv4 = resized_cctv4/255
 
             count = count + 1
+
             if count == 8:
                 frames_queue.append(normalized_frame)
                 count = 0
@@ -285,6 +324,14 @@ def gen_frames():
             cctv2_queue.append(normalized_cctv2)
             cctv3_queue.append(normalized_cctv3)
             cctv4_queue.append(normalized_cctv4)
+
+            cctv1_prediction = ""
+
+            if recent_save:
+                count_predict = count_predict + 1
+                if count_predict > 50:
+                    recent_save = False
+                    count_predict = 0
 
             if len(frames_queue) == SEQUENCE_LENGTH:
                 # print(reconstructed_model.predict(
@@ -319,6 +366,8 @@ def gen_frames():
                 predicted_class_name_cctv3 = classes_list[predicted_label_cctv3]
                 predicted_class_name_cctv4 = classes_list[predicted_label_cctv4]
 
+                cctv1_prediction = predicted_class_name_cctv1
+
                 # print("cctv1", predicted_class_name_cctv1, "-", predicted_label_cctv1)
                 # print("cctv2", predicted_class_name_cctv2, "-", predicted_label_cctv2)
                 # print("cctv3", predicted_class_name_cctv3, "-", predicted_label_cctv3)
@@ -344,6 +393,30 @@ def gen_frames():
                 cv2.putText(cctv4, str(predicted_labels_probabilities_cctv1), (10, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
+                resized = cv2.resize(
+                    cctv1, (320, 240), interpolation=cv2.INTER_AREA)
+                video.append(resized)
+                if recent_save == False and cctv1_prediction != "Not Crime" and len(video) >= 150:
+                    print("file uploaded")
+                    print(cctv1.shape)
+                    out = cv2.VideoWriter(
+                        'static/output/cctv1.mp4', fourcc, 30.0, (320, 240))
+                    for v in video:
+                        print(v)
+                        v = cv2.cvtColor(v, cv2.COLOR_GRAY2BGR)
+                        out.write(v)
+                    out.release()
+
+                    with open('static/output/cctv1.mp4', 'rb') as f:
+                        file = f
+                        upload = Crime(filename='cctv1' + str(int(time.time())) + '.mp4',
+                                       data=file.read(), verify=False)
+                        db.session.add(upload)
+                        db.session.commit()
+
+                    recent_save = True
+                    print(len(video))
+
             output_frame_1 = cv2.vconcat((cctv1, cctv2))
             output_frame_2 = cv2.vconcat((cctv3, cctv4))
             output_frame = cv2.hconcat((output_frame_1, output_frame_2))
@@ -355,28 +428,42 @@ def gen_frames():
 
 
 @app.route('/feed')
+@login_required
 def feed():
     return render_template('cctv1.html')
 
 
 @app.route('/video_feed')
+@login_required
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/confirm_emergency/<int:id>')
+@login_required
 def confirm_emergency(id):
+    #user = User.query.all()
     confirm = Crime.query.filter_by(id=id).first()
     confirm.verify = True
     db.session.commit()
-    return '<h1> updated </h1>'
+    subject = " Emergency for {}".format(current_user.username)
+    msg = Message(
+        subject=subject,
+        sender='thesispd2022@gmail.com',
+        # recipients=['kchan01412@gmail.com', 'tyrone.guevarra@gmail.com',
+        #             'qjacaustria@tip.edu.ph', 'qaagalit02@tip.edu.ph']
+        recipients=[current_user.email]
+    )
+    msg.body = 'SA CCTV 1 MAY EMERGENCY BILIS REPORT TO AUTHORITY PLS'
 
-
-def send_email(id):
-    return
+    with app.open_resource('static/data/data{}.mp4'.format(id)) as fp:
+        msg.attach('data{}.mp4'.format(id), "video/mp4", fp.read())
+    mail.send(msg)
+    return redirect(url_for('notification'))
 
 
 @app.route('/delete_user/<int:id>')
+@login_required
 def delete_user(id):
     user_to_delete = User.query.get_or_404(id)
 
@@ -388,12 +475,26 @@ def delete_user(id):
         return '<h1> Failed to delete user. </h1>'
 
 
+@app.route('/delete_notif/<int:id>')
+@login_required
+def delete_notif(id):
+    notif_to_delete = Crime.query.get_or_404(id)
+
+    try:
+        db.session.delete(notif_to_delete)
+        db.session.commit()
+        os.remove("static/data/data{}.mp4".format(id))
+        return redirect(url_for('notification'))
+    except:
+        return '<h1> Failed to delete notif. </h1>'
+
+
 @app.route('/update_user/<int:id>', methods=['GET', 'POST'])
+@login_required
 def update_user(id):
 
     user_to_update = User.query.get_or_404(id)
     form = RegisterForm(obj=user_to_update)
-
     print("updating user...")
 
     if request.method == "POST":

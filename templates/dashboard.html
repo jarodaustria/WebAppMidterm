@@ -6,101 +6,75 @@ Dashboard
 
 {% block styles %}
 {{super()}}
-<link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}">
+<!-- <link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}"> -->
 {% endblock %}
 
 {% block content %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"
   integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ=="
   crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<!-- <nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-        aria-expanded="false" aria-controls="navbar">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">Sulyapp</a>
-    </div>
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="{{ url_for('admin') }}">Admin</a></li>
-        <li><a href="#">Profile</a></li>
-        <li><a href="{{ url_for('logout') }}">Log Out</a></li>
-      </ul>
-      <form class="navbar-form navbar-right">
-        <input type="text" class="form-control" placeholder="Search...">
-      </form>
-    </div>
-  </div>
-</nav>
-
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-sm-3 col-md-2 sidebar">
-      <ul class="nav nav-sidebar">
-        <li class="active"><a href="#">Dashboard <span class="sr-only">(current)</span></a></li> -->
-<!--<li><a href="#">Reports</a></li>
-        <li><a href="#">Analytics</a></li>
-        <li><a href="#">Export</a></li>-->
-<!-- <li><a href="{{ url_for('notification') }}">Notifications</a></li>
-        <li><a href="{{ url_for('crimes') }}">Videos</a></li>
-      </ul>
-      <ul class="nav nav-sidebar">
-        <li><a href="{{ url_for('cctv') }}">CCTV 1</a></li>
-        <li><a href="">CCTV 2</a></li>
-        <li><a href="">CCTV 3</a></li>
-        <li><a href="">CCTV 4</a></li>
-        <li><a href="">CCTV 5</a></li>
-      </ul> -->
-<!--<ul class="nav nav-sidebar">
-            <li><a href="">Nav item again</a></li>
-            <li><a href="">One more nav</a></li>
-            <li><a href="">Another nav item</a></li>
-          </ul> -->
-<!-- </div> -->
-<h1 class="page-header">Welcome, {{ name }}</h1>
+<h1>Welcome, {{ name }}</h1><br>
 <canvas id="myChart" max-width="100" max-height="100"></canvas>
 <script>
-  function getRandomColor() {
-    var letters = '0123456789ABCDEF'.split('');
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
+  //        function getRandomColor() {
+  //   var letters = '0123456789ABCDEF'.split('');
+  //   var color = '#';
+  //   for (var i = 0; i < 6; i++) {
+  //     color += letters[Math.floor(Math.random() * 16)];
+  //   }
+  //   return color;
+  // }
   var ctx = document.getElementById('myChart').getContext('2d');
-
-  var date = "{{ date|safe}}";
-  var detections = "{{ detections|safe }}";
+  //ar labels = "{{ labels|safe }}";
+  //var values = "{{ values|safe }}";
   var myChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: date,
-      datasets: [{
-        label: 'Number of Detections for CCTV 1',
-        data: detections,
-        backgroundColor: getRandomColor(),
-        borderWidth: 1,
-
-
-      }]
+      labels: {{ labels | safe }},
+  datasets: [{
+    label: 'Number of Detections for CCTV 1',
+    data: {{ values | safe }},
+    backgroundColor: "rgba(255,82,82,0.3)",
+    borderWidth: 2,
+    borderColor: "rgb(255,82,82)",
+    fill: true,
+    lineTension: 0.4,
+  },
+  {
+    label: 'Number of Verified Detections for CCTV 1',
+    data: {{ values1 | safe }},
+    backgroundColor: "rgba(72,191,83,0.3)",
+    borderWidth: 2,
+    borderColor: "rgb(72,191,83)",
+    fill: true,
+    lineTension: 0.4,
+  }]
     },
-    options: {
-      spanGaps: true,
+  options: {
+    spanGaps: true,
       scales: {
-        y: {
-          beginAtZero: true
-        }
-
+      y: {
+        beginAtZero: true
       }
+
     }
+  }
   });
+</script>
+{% endblock %}
+
+}]
+},
+options: {
+spanGaps: true,
+scales: {
+y: {
+beginAtZero: true
+}
+
+}
+}
+});
 </script>
 
 <!-- </div>
