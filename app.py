@@ -55,7 +55,7 @@ SEQUENCE_LENGTH = 30
 # classes_list = ["Crime", "Not Crime"]
 classes_list = ["Not Crime", "Assault", "Shooting"]
 reconstructed_model = load_model(
-    "threeClass_90p.hf")
+    "threeClass_91pV2.hf")
 
 
 class User(UserMixin, db.Model):
@@ -454,7 +454,7 @@ def confirm_emergency(id):
         #             'qjacaustria@tip.edu.ph', 'qaagalit02@tip.edu.ph']
         recipients=[current_user.email]
     )
-    msg.body = 'SA CCTV 1 MAY EMERGENCY BILIS REPORT TO AUTHORITY PLS'
+    msg.body = 'There is a confirmed crime within the area of CCTV1'
 
     with app.open_resource('static/data/data{}.mp4'.format(id)) as fp:
         msg.attach('data{}.mp4'.format(id), "video/mp4", fp.read())
