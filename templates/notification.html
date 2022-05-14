@@ -1,0 +1,80 @@
+{% extends "template.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+
+  
+{% endblock %}
+
+{% block content %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"
+      integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- <link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}"> -->
+    <link rel="stylesheet" type="text/css" href="static/notification.css">
+    <!-- <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
+      integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" /> -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" 
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" 
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" 
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+      <h1>Welcome, {{ name }}</h1><br>
+  <table>
+      <tr id="header">
+          <th>ID</th>
+          <th>Date</th>
+          <!-- <th>Password</th> -->
+          <th>Video Clip</th>
+          <th colspan="3">Verify</th>
+          <!-- <th></th>
+          <th></th>
+          <th></th> -->
+      </tr>
+      {% for u,n in zip(context.crimes, j)|reverse %}
+      {% if u.verify == False %}
+      <tr style="background-color: var(--red2);">
+          <td>{{ u.id }}</td>
+          <td>{{ u.date_created }}</td>
+          <td><video width="500" height="300" controls><source src="static/data/data{{n}}.mp4" type='video/mp4; codecs="avc1.4d002a'></video>
+          </td>
+          <td> Not Yet Verified </td>
+          <td>
+              <a role="button" class="btn btn-danger btn-lg" href="{{ url_for('confirm_emergency', id=u.id) }}">Confirm Emergency</a>
+          </td>
+          <!-- <td>
+              <button type="button" class="btn btn-success" href="">Not Emergency</button>
+          </td> -->
+          <td>
+            <a role="button" class="btn btn-dark btn-lg" href="{{ url_for('delete_notif', id=u.id) }}" >Delete</a>
+          </td> 
+      </tr>
+      {% else %} 
+      <tr style="background-color: var(--green2);">
+        <td>{{ u.id }}</td>
+        <td>{{ u.date_created }}</td>
+        <td><video width="500" height="300" controls><source src="static/data/data{{n}}.mp4" type='video/mp4; codecs="avc1.4d002a'></video>
+        </td>
+        <td> Verified </td>
+        <td>
+            <a role="button" class="btn btn-secondary btn-lg disabled" href="{{ url_for('confirm_emergency', id=u.id) }}">Confirm Emergency</a>
+        </td>
+        <!-- <td>
+            <button type="button" class="btn btn-danger" href="">Not Emergency</button>
+        </td> -->
+        <td>
+          <a role="button" class="btn btn-dark btn-lg" href="{{ url_for('delete_notif', id=u.id) }}" >Delete</a>
+        </td> 
+      </tr>
+      {% endif %}
+    {% endfor %}
+  
+  </table>
+{% endblock %}
