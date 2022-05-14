@@ -225,6 +225,7 @@ body
     border-radius: 50%;
     overflow: hidden;
     cursor: pointer;
+    transition: all .1s ease-in;
 }
 .user img
 {
@@ -234,6 +235,10 @@ body
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+.user:hover
+{
+    transform: scale(1.5);
 }
 .icon-button__badge
 {

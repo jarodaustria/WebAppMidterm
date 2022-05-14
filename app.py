@@ -1,13 +1,13 @@
 import email
 import time
 from enum import unique
-from flask import Flask, render_template, redirect, url_for, request, Response, send_file, flash
+from flask import Flask, render_template, redirect, url_for, request, Response, flash #send_file, 
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import or_
+# from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
@@ -16,8 +16,8 @@ import tensorflow as tf
 from keras.models import load_model
 from collections import deque
 from moviepy.editor import *
-import moviepy.editor as mp
-import moviepy
+# import moviepy.editor as mp
+# import moviepy
 import numpy as np
 import os
 from io import BytesIO
@@ -28,7 +28,7 @@ from flask_mail import Mail, Message
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SQLALCHEMY_BINDS'] = {'crime': 'sqlite:///crime.db'}
+# app.config['SQLALCHEMY_BINDS'] = {'crime': 'sqlite:///crime.db'}
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 # thesispd2022@gmail.com
@@ -68,7 +68,7 @@ class User(UserMixin, db.Model):
 
 
 class Crime(db.Model):
-    __bind_key__ = 'crime'
+    # __bind_key__ = 'crime'
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     filename = db.Column(db.String(100))
@@ -206,6 +206,7 @@ def dashboard():
 
 
 @app.route('/admin')
+@login_required
 def admin():
     users = User.query.all()
 
@@ -247,19 +248,20 @@ def notification():
 
 # Crime database, version 1 function
 
+### code for manual adding of data in database  ###
 
-@app.route('/crimes', methods=['GET', 'POST'])
-@login_required
-def crimes():
-    if request.method == "POST":
-        file = request.files['file']
+# @app.route('/crimes', methods=['GET', 'POST'])
+# @login_required
+# def crimes():
+#     if request.method == "POST":
+#         file = request.files['file']
 
-        upload = Crime(filename=file.filename, data=file.read(), verify=False)
-        db.session.add(upload)
-        db.session.commit()
-        return f'Uploaded: {file.filename}'
+#         upload = Crime(filename=file.filename, data=file.read(), verify=False)
+#         db.session.add(upload)
+#         db.session.commit()
+#         return f'Uploaded: {file.filename}'
 
-    return render_template('crimes.html', name=current_user.username)
+#     return render_template('crimes.html', name=current_user.username)
 
 
 @app.route('/profile')
@@ -426,11 +428,13 @@ def gen_frames():
 
 
 @app.route('/feed')
+@login_required
 def feed():
     return render_template('cctv1.html')
 
 
 @app.route('/video_feed')
+@login_required
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -459,6 +463,7 @@ def confirm_emergency(id):
 
 
 @app.route('/delete_user/<int:id>')
+@login_required
 def delete_user(id):
     user_to_delete = User.query.get_or_404(id)
 
@@ -485,6 +490,7 @@ def delete_notif(id):
 
 
 @app.route('/update_user/<int:id>', methods=['GET', 'POST'])
+@login_required
 def update_user(id):
 
     user_to_update = User.query.get_or_404(id)
