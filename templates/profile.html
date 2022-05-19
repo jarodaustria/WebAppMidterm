@@ -3,6 +3,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"
   integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ=="
   crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- <script src="static/Mousetrap.js"></script> -->
   <link rel="stylesheet" type="text/css" href="static/profile.css">
       <h1>The Developers</h1><br><br><br>
       <div class="container">
@@ -18,5 +19,50 @@
             <div class="col-md-5">Jogno</div>
         </div>
       </div>
+    
+    <!-- <div class="content">
+
+        
+          <a class="button c55" method="POST"><span class="key"></span></a>
+          <a class="button c191" method="POST"><span class="key"></span></a>
+          <a class="button c27 fn esc" method="POST"><span class="key"></span></a>
+        
+    
+        <div class="keyboard-answer">
+          <h3><span></span></h3>
+        </div>
+    
+    </div>    -->
+  <script>
+// This is the standard Mousetrap.js syntax.
+// The parameters are the symbol we expect and a callback function.
+      // Mousetrap.bind('8', function() {  showBalloon(8); });
+      // Mousetrap.bind('9', function() {  showBalloon(9); });
+      // Mousetrap.bind('7', function() {  showBalloon(7); });
+// The code below is for our demo.
+// Displays a balloon with info on every successful button press. 
+// var balloon = $('.keyboard-answer'),
+//     stopTimeout;
+
+// $(document).click(function(){
+//   if(balloon.is(':visible')) {
+//     balloon.removeClass('active');
+//   }
+// });
+
+          // function showBalloon(data) {
+          //   let num = data
+          //   const request = new XMLHttpRequest()
+          //   request.open('POST',`/profile/${JSON.stringify(num)}`)
+          //   request.send()
+          // }
+  // balloon.addClass('active').find('h3 span').text(data);
+
+  // clearTimeout(stopTimeout);
+  // stopTimeout = setTimeout(function () {
+  //   balloon.removeClass('active');
+  // }, 1500);
+
+  </script>
 
 {% endblock %}
