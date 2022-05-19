@@ -55,7 +55,7 @@ SEQUENCE_LENGTH = 30
 # classes_list = ["Crime", "Not Crime"]
 classes_list = ["Not Crime", "Assault", "Shooting"]
 reconstructed_model = load_model(
-    "threeClass_91pV2.hf")
+    "threeClass_91pV4.hf")
 
 
 class User(UserMixin, db.Model):
