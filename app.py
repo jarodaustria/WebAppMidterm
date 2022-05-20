@@ -22,9 +22,17 @@ import numpy as np
 import os
 from io import BytesIO
 #import jinja2
-#import threading
+import threading
 from flask_mail import Mail, Message
 import json
+
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+port = 465
+smtp_server = "smtp.gmail.com"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
@@ -56,7 +64,7 @@ SEQUENCE_LENGTH = 30
 # classes_list = ["Crime", "Not Crime"]
 classes_list = ["Not Crime", "Assault", "Shooting"]
 reconstructed_model = load_model(
-    "threeClass_91pV4.hf")
+    "threeClass_91pV5.hf")
 
 
 class User(UserMixin, db.Model):
@@ -133,7 +141,9 @@ def signup():
                         email=form.email.data, password=hash_password)
         db.session.add(new_user)
         db.session.commit()
-        flash("Account Created!")
+        flash("Account Created! Redirecting to Login...")
+        time.sleep(2)
+        return redirect(url_for('login'))
         # return '<h1> New user has been created </h1>'
 
     return render_template('signup.html', form=form)
@@ -228,8 +238,17 @@ def logout():
 @app.route('/cctv')
 @login_required
 def cctv():
-    return render_template('cctv1.html', name=current_user.username)
-
+    crimes = Crime.query.all()
+    context = {
+        'crimes': crimes,
+    }
+    flash("This is a preview of the detected crime, please verify to notify authority")
+    b = []
+    for x in crimes:
+        b.append(x.id)
+    i = b[-1]
+    # i = context.id[-1]
+    return render_template('cctv1.html', name=current_user.username, context=context,i=i)
 
 @app.route('/notification')
 @login_required
@@ -285,18 +304,46 @@ def profile():
     return render_template('profile.html', name=current_user.username)
 
 
-# @app.route('/profile/<string:num>', methods=['POST'])
-# @login_required
-# def profile1(num):
-#     number = json.loads(num)
-#     print(str(number))
+@app.route('/profile/<string:num>', methods=['POST'])
+@login_required
+def profile1(num):
+    number = json.loads(num)
+    print(str(number))
 
-#     return redirect(url_for('profile'))
+    return redirect(url_for('profile'))
 
 # Camera function
+def send_mail_to_watcher(id, subject, receiver):
+    print("sending email...")
+    confirm = Crime.query.filter_by(id=id).first()
+    
+    
+    receiver_email = receiver
+    sender_email = 'thesispd2022@gmail.com'
+    password = 'group10pd22022'
 
+    message = MIMEMultipart("alternative")
+    message["Subject"] = subject
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    text = """\
+        There's a possible crime! Verify immediately in the Notifications page.
+        """
 
-def gen_frames():
+    part1 = MIMEText(text, "plain")
+    # part2 = MIMEText(html, "html")
+
+    message.attach(part1)
+    # message.attach(part2)
+
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email,
+                        message.as_string())
+    print("email sent!")
+
+def gen_frames(subject, receiver):
     video_reader = camera
 
     frames_queue = deque(maxlen=SEQUENCE_LENGTH)
@@ -400,22 +447,22 @@ def gen_frames():
                 cv2.putText(cctv1, predicted_class_name_cctv1, (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(cctv1, str(predicted_labels_probabilities_cctv1), (10, 60),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 255, 255), 1)
 
                 cv2.putText(cctv2, predicted_class_name_cctv2, (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(cctv2, str(predicted_labels_probabilities_cctv1), (10, 60),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 255, 255), 1)
 
                 cv2.putText(cctv3, predicted_class_name_cctv3, (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(cctv3, str(predicted_labels_probabilities_cctv1), (10, 60),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 255, 255), 1)
 
                 cv2.putText(cctv4, predicted_class_name_cctv4, (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(cctv4, str(predicted_labels_probabilities_cctv1), (10, 60),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 255, 255), 1)
 
                 resized = cv2.resize(
                     cctv1, (320, 240), interpolation=cv2.INTER_AREA)
@@ -437,6 +484,12 @@ def gen_frames():
                                        data=file.read(), verify=False)
                         db.session.add(upload)
                         db.session.commit()
+                        
+                        obj = db.session.query(Crime).order_by(Crime.id.desc()).first()
+                        OBJ_id = obj.id
+
+                        MAIL_THREAD = threading.Thread(target=send_mail_to_watcher, args=(OBJ_id, subject, receiver))
+                        MAIL_THREAD.start()
 
                     recent_save = True
                     print(len(video))
@@ -460,7 +513,9 @@ def feed():
 @app.route('/video_feed')
 @login_required
 def video_feed():
-    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    subject = " Emergency for {}".format(current_user.username)
+    receiver = current_user.email
+    return Response(gen_frames(subject, receiver), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/confirm_emergency/<int:id>')
