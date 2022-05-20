@@ -191,7 +191,7 @@ body
 .search 
 {
     position: relative;
-    width: 400px;
+    width: 500px;
     margin: 0 10px;
 }
 .search label
@@ -254,4 +254,15 @@ body
     z-index: 100;
     font-size: 1.5em;
 }
+.switch-toggle {
+    width: 50em;
+    height: 4em;
+    
+}
+  
+.switch-toggle label:not(.disabled) {
+    cursor: pointer;
+    height: 4em;
+  }
+
 

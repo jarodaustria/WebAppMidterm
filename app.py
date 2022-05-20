@@ -1,7 +1,7 @@
 import email
 import time
 from enum import unique
-from flask import Flask, render_template, redirect, url_for, request, Response, flash #send_file, 
+from flask import Flask, render_template, redirect, url_for, request, Response, flash  # send_file,
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
@@ -24,6 +24,7 @@ from io import BytesIO
 #import jinja2
 #import threading
 from flask_mail import Mail, Message
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'jarodski'
@@ -141,9 +142,9 @@ def signup():
 @app.context_processor
 def add_detection_number():
     detection_false = Crime.query.filter_by(verify=False).all()
-    print(detection_false)
+    # print(detection_false)
     detection_number = len(detection_false)
-    print(detection_number)
+    # print(detection_number)
 
     return dict(detection_number=detection_number)
 
@@ -162,12 +163,12 @@ def dashboard():
     # for i in verify:
     #     if i == None:
     #         i = False
-    print(date)
+    # print(date)
     for i in date:
         date_list.append(str((i[0].date())))
     for i in verify:
         verify_list.append(str((i[0].date())))
-    print(verify_list)
+    # print(verify_list)
     date = date_list
     date, detections = np.unique(date_list, return_counts=True)
     verify, verified = np.unique(verify_list, return_counts=True)  # 4-0-1
@@ -188,15 +189,15 @@ def dashboard():
     ver = []
     for i in verified:  # [4,1] ## [4, 0, 1]
         ver.append(str(i))
-    print("Here is the date: ", date)
-    print("Here are the detections", detections)
-    print("Here are the verified", verified)  # [4, 0, 1]
+    # print("Here is the date: ", date)
+    # print("Here are the detections", detections)
+    # print("Here are the verified", verified)  # [4, 0, 1]
     data = date + detections + verified
     data = []
     for i in range(len(date)):
         data.append((date[i], detections[i], verified[i]))
 
-    print("data", data)
+    # print("data", data)
 
     labels = [row[0]for row in data]
     values = [row[1] for row in data]
@@ -234,17 +235,31 @@ def cctv():
 @login_required
 def notification():
     crimes = Crime.query.all()
+    verify = Crime.query.filter_by(verify=True).all()
+    nverify = Crime.query.filter_by(verify=False).all()
 
     context = {
         'crimes': crimes,
+        'verify': verify,
+        'nverify': nverify,
     }
     j = []
     for x in crimes:
         with open('static/data/data{}.mp4'.format(x.id), 'wb') as f:
             f.write(x.data)
         j.append(x.id)
-    print(j)
-    return render_template('notification.html', name=current_user.username, context=context, zip=zip, j=j)
+    k = []
+    for y in verify:
+        with open('static/data/data{}.mp4'.format(y.id), 'wb') as g:
+            g.write(y.data)
+        k.append(y.id)
+    l = []
+    for z in nverify:
+        with open('static/data/data{}.mp4'.format(z.id), 'wb') as h:
+            h.write(z.data)
+        l.append(z.id)
+    # print(j)
+    return render_template('notification.html', name=current_user.username, context=context, zip=zip, j=j, k=k, l=l)
 
 # Crime database, version 1 function
 
@@ -268,6 +283,15 @@ def notification():
 @login_required
 def profile():
     return render_template('profile.html', name=current_user.username)
+
+
+# @app.route('/profile/<string:num>', methods=['POST'])
+# @login_required
+# def profile1(num):
+#     number = json.loads(num)
+#     print(str(number))
+
+#     return redirect(url_for('profile'))
 
 # Camera function
 
