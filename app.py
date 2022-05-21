@@ -63,8 +63,9 @@ SEQUENCE_LENGTH = 30
 
 # classes_list = ["Crime", "Not Crime"]
 classes_list = ["Not Crime", "Assault", "Shooting"]
+# classes_list = ["Shooting", "Assault", "Not Crime"]
 reconstructed_model = load_model(
-    "threeClass_91pV5.hf")
+    "threeClass_onlygalithouseV6_testinglang7.hf")
 
 
 class User(UserMixin, db.Model):
@@ -133,7 +134,8 @@ def signup():
     exist_email = User.query.filter_by(email=form.email.data).first()
     exist_username = User.query.filter_by(username=form.username.data).first()
     if (exist_email or exist_username):
-        return '<h1> User already exists! </h1>'
+        flash("Account Already Exists!")
+        return redirect(url_for('signup'))
     if form.validate_on_submit():
         hash_password = generate_password_hash(
             form.password.data, method='sha256')
@@ -141,8 +143,7 @@ def signup():
                         email=form.email.data, password=hash_password)
         db.session.add(new_user)
         db.session.commit()
-        flash("Account Created! Redirecting to Login...")
-        time.sleep(2)
+        # flash("Account Created! Redirecting to Login...")
         return redirect(url_for('login'))
         # return '<h1> New user has been created </h1>'
 
