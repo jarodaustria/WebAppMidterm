@@ -65,7 +65,7 @@ SEQUENCE_LENGTH = 30
 classes_list = ["Not Crime", "Assault", "Shooting"]
 # classes_list = ["Shooting", "Assault", "Not Crime"]
 reconstructed_model = load_model(
-    "threeClass_onlygalithouseV6_testinglang7.hf")
+    "threeClass_onlygalithouse_carV4.hf")
 
 
 class User(UserMixin, db.Model):
@@ -80,7 +80,7 @@ class User(UserMixin, db.Model):
 class Crime(db.Model):
     # __bind_key__ = 'crime'
     id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, default=datetime.now())
     filename = db.Column(db.String(100))
     verify = db.Column(db.Boolean)
     data = db.Column(db.LargeBinary)
