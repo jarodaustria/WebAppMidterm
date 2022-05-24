@@ -9,15 +9,43 @@
     cursor: pointer;
     background-color: var(--black2);
     color: var(--white);
-    font-size: 2em;
+    font-size: 1.35em;
+    filter: saturate(75%);
+    color: transparent;
+    border-radius: 2%;  
+}
+
+.col-md-5 > img
+{    
+    transition: all .3s ease-in;
+    position:relative;
+    width: 300px;
+    height: 300px;
+    border-radius: 5%;  
 }
 .col-md-5:hover
 {
     transform: scale(1.1);
     box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2), -1px -1px 8px rgba(0, 0, 0, 0.2);
     z-index: 10;
+    filter: saturate(100%);
+    background-color: var(--blue);
+    color: var(--white);
+}
+.col-md-5:hover > img
+{
+    position:relative;
+    width: 175px;
+    height: 175px;
+    border-radius: 50%;  
 }
 .container
 {
     width: 1500px;
 }
+/* .img 
+{
+    position:relative;
+    width: 150px;
+    height: 150px;
+} */

@@ -51,6 +51,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+app.url_map.strict_slashes = False
 app.jinja_env.globals.update(zip=zip)
 camera = cv2.VideoCapture(0)
 
@@ -84,6 +85,15 @@ class Crime(db.Model):
     filename = db.Column(db.String(100))
     verify = db.Column(db.Boolean)
     data = db.Column(db.LargeBinary)
+
+
+# @app.before_request
+# def clear_trailing():
+#     from flask import redirect, request
+
+#     rp = request.path
+#     if rp != '/' and rp.endswith('/'):
+#         return redirect(rp[:-1])
 
 
 @login_manager.user_loader
@@ -249,7 +259,8 @@ def cctv():
         b.append(x.id)
     i = b[-1]
     # i = context.id[-1]
-    return render_template('cctv1.html', name=current_user.username, context=context,i=i)
+    return render_template('cctv1.html', name=current_user.username, context=context, i=i)
+
 
 @app.route('/notification')
 @login_required
@@ -314,11 +325,12 @@ def profile1(num):
     return redirect(url_for('profile'))
 
 # Camera function
+
+
 def send_mail_to_watcher(id, subject, receiver):
     print("sending email...")
     confirm = Crime.query.filter_by(id=id).first()
-    
-    
+
     receiver_email = receiver
     sender_email = 'thesispd2022@gmail.com'
     password = 'group10pd22022'
@@ -343,6 +355,7 @@ def send_mail_to_watcher(id, subject, receiver):
         server.sendmail(sender_email, receiver_email,
                         message.as_string())
     print("email sent!")
+
 
 def gen_frames(subject, receiver):
     video_reader = camera
@@ -485,11 +498,13 @@ def gen_frames(subject, receiver):
                                        data=file.read(), verify=False)
                         db.session.add(upload)
                         db.session.commit()
-                        
-                        obj = db.session.query(Crime).order_by(Crime.id.desc()).first()
+
+                        obj = db.session.query(Crime).order_by(
+                            Crime.id.desc()).first()
                         OBJ_id = obj.id
 
-                        MAIL_THREAD = threading.Thread(target=send_mail_to_watcher, args=(OBJ_id, subject, receiver))
+                        MAIL_THREAD = threading.Thread(
+                            target=send_mail_to_watcher, args=(OBJ_id, subject, receiver))
                         MAIL_THREAD.start()
 
                     recent_save = True
