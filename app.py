@@ -30,6 +30,7 @@ import smtplib
 import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from urllib.parse import urlparse
 
 port = 465
 smtp_server = "smtp.gmail.com"
@@ -249,18 +250,22 @@ def logout():
 @app.route('/cctv')
 @login_required
 def cctv():
-    crimes = Crime.query.all()
-    context = {
-        'crimes': crimes,
-    }
-    flash("This is a preview of the detected crime, please verify to notify authority")
-    b = []
-    for x in crimes:
-        b.append(x.id)
-    i = b[-1]
-    # i = context.id[-1]
-    return render_template('cctv1.html', name=current_user.username, context=context, i=i)
+    # crimes = Crime.query.all()
+    # context = {
+    #     'crimes': crimes,
+    # }
+    # flash("This is a preview of the detected crime, please verify to notify authority")
+    # b = []
+    # for x in crimes:
+    #     b.append(x.id)
+    # i = b[-1]
+    # # i = context.id[-1]
+    return render_template('cctv1.html', name=current_user.username)#, context=context, i=i)
 
+@app.route('/single_video/<int:id>')
+@login_required
+def single_video(id):
+    return render_template('single_video.html', id=id)
 
 @app.route('/notification')
 @login_required
@@ -322,12 +327,11 @@ def profile1(num):
     number = json.loads(num)
     print(str(number))
 
-    return redirect(url_for('profile'))
+    return redirect(url_for('profile'))\
 
 # Camera function
-
-
-def send_mail_to_watcher(id, subject, receiver):
+#SEND TO MAIL OPERATOR -- With Confirmation Link
+def send_mail_to_operator(id, subject, receiver, netloc, scheme):
     print("sending email...")
     confirm = Crime.query.filter_by(id=id).first()
 
@@ -339,11 +343,15 @@ def send_mail_to_watcher(id, subject, receiver):
     message["Subject"] = subject
     message["From"] = sender_email
     message["To"] = receiver_email
-    text = """\
-        There's a possible crime! Verify immediately in the Notifications page.
-        """
 
-    part1 = MIMEText(text, "plain")
+    confirm_link = scheme+"://"+netloc+"/confirm_emergency/"+str(id)
+
+    text = """\
+        <p>There's a possible incident! Verify immediately in the Notifications page.</p>
+        <p> You can also confirm here 
+        <a href=\"""" + confirm_link + """\">Confirm</a> </p>
+        """
+    part1 = MIMEText(text, "html")
     # part2 = MIMEText(html, "html")
 
     message.attach(part1)
@@ -357,7 +365,7 @@ def send_mail_to_watcher(id, subject, receiver):
     print("email sent!")
 
 
-def gen_frames(subject, receiver):
+def gen_frames(subject, receiver, netloc, scheme):
     video_reader = camera
 
     frames_queue = deque(maxlen=SEQUENCE_LENGTH)
@@ -503,8 +511,13 @@ def gen_frames(subject, receiver):
                             Crime.id.desc()).first()
                         OBJ_id = obj.id
 
+                        # MAIL_THREAD = threading.Thread(
+                        #     target=send_mail_to_watcher, args=(OBJ_id, subject, receiver))
+
                         MAIL_THREAD = threading.Thread(
-                            target=send_mail_to_watcher, args=(OBJ_id, subject, receiver))
+                            target=send_mail_to_operator, args=(OBJ_id, subject, receiver, netloc, scheme))
+
+
                         MAIL_THREAD.start()
 
                     recent_save = True
@@ -531,7 +544,12 @@ def feed():
 def video_feed():
     subject = " Emergency for {}".format(current_user.username)
     receiver = current_user.email
-    return Response(gen_frames(subject, receiver), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    parsed = urlparse(request.url)
+    netloc = parsed.netloc
+    scheme = parsed.scheme
+
+    return Response(gen_frames(subject, receiver, netloc, scheme), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/confirm_emergency/<int:id>')
