@@ -28,6 +28,8 @@ import json
 
 import smtplib
 import ssl
+from os.path import basename
+from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from urllib.parse import urlparse
@@ -260,12 +262,15 @@ def cctv():
     #     b.append(x.id)
     # i = b[-1]
     # # i = context.id[-1]
-    return render_template('cctv1.html', name=current_user.username)#, context=context, i=i)
+    # , context=context, i=i)
+    return render_template('cctv1.html', name=current_user.username)
 
-@app.route('/single_video/<int:id>')
-@login_required
-def single_video(id):
-    return render_template('single_video.html', id=id)
+
+# @app.route('/single_video/<int:id>')
+# @login_required
+# def single_video(id):
+#     return render_template('single_video.html', id=id)
+
 
 @app.route('/notification')
 @login_required
@@ -330,7 +335,9 @@ def profile1(num):
     return redirect(url_for('profile'))\
 
 # Camera function
-#SEND TO MAIL OPERATOR -- With Confirmation Link
+# SEND TO MAIL OPERATOR -- With Confirmation Link
+
+
 def send_mail_to_operator(id, subject, receiver, netloc, scheme):
     print("sending email...")
     confirm = Crime.query.filter_by(id=id).first()
@@ -348,9 +355,14 @@ def send_mail_to_operator(id, subject, receiver, netloc, scheme):
 
     text = """\
         <p>There's a possible incident! Verify immediately in the Notifications page.</p>
-        <p> You can also confirm here 
-        <a href=\"""" + confirm_link + """\">Confirm</a> </p>
+        <p> Also, attached below is the video clip of the recorded incident and you can confirm the emergency here:  
+        <a href=\"""" + confirm_link + """\">Confirm Emergency</a> </p>
         """
+    f = 'static/output/cctv1.mp4'
+    with app.open_resource(f) as fp:
+        part = MIMEApplication(fp.read(), Name=basename(f))
+    part['Content-Disposition'] = 'attachment; filename="%s"' % basename(f)
+    message.attach(part)
     part1 = MIMEText(text, "html")
     # part2 = MIMEText(html, "html")
 
@@ -516,7 +528,6 @@ def gen_frames(subject, receiver, netloc, scheme):
 
                         MAIL_THREAD = threading.Thread(
                             target=send_mail_to_operator, args=(OBJ_id, subject, receiver, netloc, scheme))
-
 
                         MAIL_THREAD.start()
 
