@@ -1,11 +1,12 @@
 import email
 import time
 from enum import unique
+from xml.dom import ValidationErr
 from flask import Flask, render_template, redirect, url_for, request, Response, flash  # send_file,
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
-from wtforms.validators import InputRequired, Email, Length
+from wtforms.validators import InputRequired, Email, Length, ValidationError, Regexp
 from flask_sqlalchemy import SQLAlchemy
 # from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -25,6 +26,7 @@ from io import BytesIO
 import threading
 from flask_mail import Mail, Message
 import json
+import string
 
 import smtplib
 import ssl
@@ -104,11 +106,19 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+# def my_length_check(form, field):
+#     text = str(field.data)
+#     special = set(string.punctuation)
+#     if (len(text) < 30) and (not any(c in special for c in text)):
+#         raise ValidationError(
+#             'Field must be less than 30 characters and contain special characters')
+
+
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[
                            InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[
-                             InputRequired(), Length(min=3, max=80)])
+                             InputRequired(), Length(min=8, max=30)])
     remember = BooleanField('remember me')
 
 
@@ -118,7 +128,8 @@ class RegisterForm(FlaskForm):
     username = StringField('username', validators=[
                            InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[
-                             InputRequired(), Length(min=3, max=80)])
+                             InputRequired(), Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,30}$", flags=0,
+                                                     message='Field must contain 8 to 30 characters, at least one uppercase letter, one lowercase letter, one number and one special character')])
 
 
 @app.route('/')
